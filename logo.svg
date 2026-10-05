@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Adventure Seed logo">
+  <rect width="128" height="128" rx="24" fill="#15131a"/>
+  <path d="M24 92 L24 44 L46 66 L64 30 L82 66 L104 44 L104 92 Z" fill="none" stroke="#d9a441" stroke-width="7" stroke-linejoin="round"/>
+  <rect x="24" y="96" width="80" height="10" rx="3" fill="#d9a441"/>
+  <circle cx="64" cy="74" r="7" fill="#d0463c"/>
+</svg>

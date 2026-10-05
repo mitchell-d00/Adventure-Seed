@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html lang="en" data-setting="fantasy">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Adventure Seed</title>
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Orbitron:wght@700;900&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#efe9dc;
+  --panel:#faf6ec;
+  --ink:#221d2b;
+  --muted:#6b6478;
+  --line:#cfc6b4;
+  --accent:#a8741a;
+  --hp:#c0392b;
+  --mp:#2f6fc4;
+  --xp:#3d8b4f;
+  --well:#ddd5c4;
+  --display:"Cinzel",Georgia,serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --page:#15131a;
+    --panel:#1f1c27;
+    --ink:#e9e4d8;
+    --muted:#9a93a8;
+    --line:#37324a;
+    --accent:#d9a441;
+    --hp:#d9534a;
+    --mp:#5b93e6;
+    --xp:#5cae6e;
+    --well:#0d0c11;
+  }
+}
+:root[data-theme="dark"]{
+  --page:#15131a;
+  --panel:#1f1c27;
+  --ink:#e9e4d8;
+  --muted:#9a93a8;
+  --line:#37324a;
+  --accent:#d9a441;
+  --hp:#d9534a;
+  --mp:#5b93e6;
+  --xp:#5cae6e;
+  --well:#0d0c11;
+}
+/* Each setting brings its own accent and display face; the page tokens above stay put. */
+:root[data-setting="scifi"]{--accent:#0b7482;--display:"Orbitron","Trebuchet MS",sans-serif;--page:#e6ecef;--panel:#f4f8fa;--line:#bccbd3;--well:#d3dde2;}
+:root[data-setting="wasteland"]{--accent:#a04a17;--display:"Special Elite","Courier New",monospace;--page:#e9e3d2;--panel:#f5f0e2;--line:#c9bfa5;--well:#d9d0b9;}
+@media (prefers-color-scheme:dark){
+  :root[data-setting="scifi"]:not([data-theme="light"]){--accent:#4fd0e0;--page:#0f151b;--panel:#17212a;--line:#2a3b49;--well:#090d11;}
+  :root[data-setting="wasteland"]:not([data-theme="light"]){--accent:#e07b39;--page:#181611;--panel:#23201a;--line:#3f392c;--well:#0e0d0a;}
+}
+:root[data-setting="scifi"][data-theme="dark"]{--accent:#4fd0e0;--page:#0f151b;--panel:#17212a;--line:#2a3b49;--well:#090d11;}
+:root[data-setting="wasteland"][data-theme="dark"]{--accent:#e07b39;--page:#181611;--panel:#23201a;--line:#3f392c;--well:#0e0d0a;}
+*,*::before,*::after{box-sizing:inherit;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{
+  margin:0;
+  background:var(--page);
+  color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  line-height:1.4;
+}
+main{max-width:900px;margin:0 auto;padding:14px 12px 30px;}
+h1{
+  font-family:var(--display);
+  font-weight:900;
+  font-size:clamp(1.8rem,7vw,2.8rem);
+  line-height:1;
+  margin:0 0 2px;
+  color:var(--accent);
+}
+h2{font-family:var(--display);font-size:1.15rem;margin:0 0 8px;}
+h3{font-size:.95rem;margin:14px 0 4px;border-bottom:1px solid var(--line);padding-bottom:2px;}
+.sub{margin:0 0 12px;color:var(--muted);}
+button,select,input[type=text]{
+  font:inherit;
+  color:var(--ink);
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:8px 10px;
+}
+button{cursor:pointer;font-weight:600;}
+button:hover{border-color:var(--accent);}
+button:disabled{opacity:.4;cursor:default;}
+button.go{background:var(--accent);color:var(--page);border-color:var(--accent);}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+.status{display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;gap:6px 8px;align-items:center;font-size:.85rem;margin-bottom:8px;}
+.status .where{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:2px 16px;color:var(--muted);}
+@media (max-width:560px){.status{grid-template-columns:1fr 1fr 1fr;}.status .id,.status .purse{grid-column:1/-1;}}
+.meter{position:relative;height:18px;border:1px solid var(--line);border-radius:4px;background:var(--well);overflow:hidden;}
+.meter i{position:absolute;inset:0 auto 0 0;}
+.meter span{position:relative;display:block;text-align:center;font-size:.72rem;line-height:16px;font-weight:700;text-shadow:0 0 3px var(--well),0 0 3px var(--well);}
+.m-hp i{background:var(--hp);}
+.m-mp i{background:var(--mp);}
+.m-xp i{background:var(--xp);}
+
+#map{display:block;width:100%;height:min(60vh,552px);background:#07070b;border:1px solid var(--line);border-radius:6px;touch-action:manipulation;image-rendering:pixelated;cursor:crosshair;}
+#log{font-size:.85rem;margin:8px 0;min-height:5.6em;}
+#log div{color:var(--muted);}
+#log div:last-child{color:var(--ink);}
+.acts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.acts button{padding:7px 9px;font-size:.82rem;}
+.acts button small{color:var(--muted);font-weight:400;}
+.dpad{display:none;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(3,46px);gap:5px;justify-content:center;margin:0 auto 10px;}
+@media (pointer:coarse){.dpad{display:grid;}}
+.dpad button{padding:0;font-size:1.2rem;}
+
+#modal{position:fixed;inset:0;z-index:5;display:flex;align-items:flex-start;justify-content:center;padding:calc(12px + env(safe-area-inset-top,0px)) 10px 12px;background:rgba(0,0,0,.6);overflow-y:auto;}
+#modal[hidden]{display:none;}
+.sheet{background:var(--panel);border:1px solid var(--accent);border-radius:8px;padding:14px;width:100%;max-width:640px;}
+.sheet.wide{max-width:780px;}
+.sheet .head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;}
+.rows{list-style:none;margin:0;padding:0;}
+.rows li{display:flex;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line);font-size:.9rem;}
+.rows li:last-child{border-bottom:0;}
+.rows .nm{flex:1;min-width:0;}
+.rows small{display:block;color:var(--muted);}
+.rows button{padding:4px 8px;font-size:.78rem;white-space:nowrap;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;font-size:.9rem;}
+@media (max-width:480px){.grid2{grid-template-columns:1fr;}}
+.grid2 div{display:flex;justify-content:space-between;gap:8px;align-items:center;}
+.classes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 12px;}
+@media (max-width:560px){.classes{grid-template-columns:1fr 1fr;}}
+.classes button{text-align:left;font-weight:400;font-size:.8rem;}
+.classes button b{display:block;font-size:.95rem;}
+.classes button.on{border-color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent);}
+.seedrow{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin:8px 0;}
+.seedrow label{display:flex;flex-direction:column;gap:2px;font-size:.85rem;flex:1 1 150px;}
+.seedrow input,.seedrow select{width:100%;}
+.gal{display:block;width:100%;height:340px;border:1px solid var(--line);border-radius:6px;background:#07070d;cursor:pointer;}
+.gal.small{height:200px;cursor:default;}
+.tabs{display:flex;gap:6px;margin-bottom:8px;}
+.tabs button.on{border-color:var(--accent);color:var(--accent);}
+.gold{color:var(--accent);font-weight:700;}
+.muted{color:var(--muted);font-size:.88rem;}
+details{margin-top:8px;font-size:.9rem;}
+summary{cursor:pointer;font-weight:600;}
+</style>
+</head>
+<body>
+<main>
+  <h1>Adventure Seed</h1>
+  <p class="sub" id="sub">Somewhere past the last star, something still wears the crown.</p>
+
+  <div id="game" hidden>
+    <div class="status" id="status"></div>
+    <canvas id="map" aria-label="Map"></canvas>
+    <div id="log" aria-live="polite"></div>
+    <div class="acts" id="acts"></div>
+    <div class="dpad" id="dpad">
+      <button type="button" data-dir="-1,-1" aria-label="Move up-left">↖</button>
+      <button type="button" data-dir="0,-1" aria-label="Move up">↑</button>
+      <button type="button" data-dir="1,-1" aria-label="Move up-right">↗</button>
+      <button type="button" data-dir="-1,0" aria-label="Move left">←</button>
+      <button type="button" data-dir="0,0" aria-label="Wait a turn">•</button>
+      <button type="button" data-dir="1,0" aria-label="Move right">→</button>
+      <button type="button" data-dir="-1,1" aria-label="Move down-left">↙</button>
+      <button type="button" data-dir="0,1" aria-label="Move down">↓</button>
+      <button type="button" data-dir="1,1" aria-label="Move down-right">↘</button>
+    </div>
+    <details>
+      <summary>How to play</summary>
+      <p>Move with the arrow keys or W A S D; Q E Z C move diagonally. Walk into a foe to attack it and into a townsperson to trade. Click a foe to target it, click a distant tile to walk there, or click yourself to use what you are standing on.</p>
+      <p>1 to 4 use abilities. F fires a ranged weapon or a charged tool at your target. X explores indoors and gathers loot outdoors. R rests. Period waits. Enter uses stairs, den entrances and your ship. T lists places to walk to. V boards or leaves your vehicle. G opens the star map. M hides the minimap. I opens the pack, P the character sheet.</p>
+      <p>Each world has an outdoor map and two or three dens to go down into. Kill the alpha at the bottom of a den to clear it. Stand on the landing pad and open the star map to jump to a linked star. Danger rises toward the centre, where the Hollow King waits.</p>
+    </details>
+  </div>
+  <div id="modal" hidden></div>
+</main>
+
+<script>
+"use strict";
+// ================= Helpers =================
+const MAXLVL = 30, MAXD = 20;
+// RNG is swapped for a seeded generator while a galaxy or a map is being built,
+// so the same seed always grows the same universe. Combat uses Math.random.
+let RNG = Math.random;
+const rnd = n => Math.floor(RNG() * n);
+const rr = (a, b) => a + rnd(b - a + 1);
+const pick = a => a[rnd(a.length)];
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const cheb = (a, b) => Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
+const DIRS = [[0,-1],[1,0],[0,1],[-1,0],[1,-1],[1,1],[-1,1],[-1,-1]];
+const STATS = ["Strength", "Dexterity", "Intellect", "Vitality"];
+function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return h >>> 0; }
+function mulberry(a) { return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function seeded(key, fn) { const old = RNG; RNG = mulberry(hashStr(key)); try { return fn(); } finally { RNG = old; } }
+
+// ================= Rules shared by every setting =================
+// st: starting Strength, Dexterity, Intellect, Vitality. grow: attributes raised automatically, two per level.
+const CLS = [
+  { desc: "Heavy hitter with the most health.", st: [8,5,2,8], hp: 11, mp: 1, grow: [0,3,0,1], kit: ["w5_0","a1_0","a4_0","p0"], col: "#b0443a" },
+  { desc: "Fast and accurate. Deadly against sleeping foes.", st: [5,9,3,6], hp: 8, mp: 2, grow: [1,0,1,3], kit: ["w0_0","a1_0","p0","s14"], col: "#4d4d63" },
+  { desc: "Fragile, with the strongest powers.", st: [3,5,10,5], hp: 5, mp: 4, grow: [2,3,2,1], kit: ["w9_0","a0_0","p2","p0"], col: "#5a4ac0" },
+  { desc: "Heals, and punishes {U}.", st: [7,4,7,7], hp: 10, mp: 4, grow: [2,3,0,2], kit: ["w2_0","a0_0","a4_0","p0"], col: "#d8d0b8" },
+  { desc: "Kills from a distance.", st: [5,9,4,6], hp: 7, mp: 2, grow: [1,3,1,0], kit: ["w10_0","a1_0","p0","f0"], col: "#3f8a4a" },
+  { desc: "Armoured fighter who can also heal.", st: [8,4,5,8], hp: 10, mp: 3, grow: [0,3,2,3], kit: ["w2_0","a2_0","a4_0","p0"], col: "#c9a227" }
+];
+// level learned, cost, type, parameters, description. Names come from the setting.
+const ABIL = [
+  [[1,3,"melee",{m:2},"A melee blow for double damage."],[5,6,"buff",{iron:12},"Much more armour for 12 turns."],[12,10,"cleave",{m:1.6},"Hit every adjacent foe."],[20,18,"heal",{f:0.45,buff:{might:10}},"Heal 45% and hit harder for 10 turns."]],
+  [[1,3,"melee",{m:2,sleepM:3.5},"A melee blow; far stronger on a sleeping foe."],[5,7,"buff",{stealth:8},"Foes lose track of you for 8 turns."],[12,10,"volley",{m:1.1,r:4},"Hit every foe within 4 tiles."],[20,14,"blink",{m:2.6},"Appear beside your target and strike."]],
+  [[1,3,"bolt",{m:0.9},"A bolt of force at your target."],[5,8,"nova",{m:0.9,r:2,stun:3},"Damage and freeze foes within 2 tiles."],[12,13,"bolt",{m:1.2,aoe:1},"An exploding bolt."],[20,28,"bolt",{m:1.8,aoe:2},"A huge blast around your target."]],
+  [[1,4,"heal",{f:0.4},"Restore 40% of your health."],[5,5,"bolt",{m:1.7,holy:2},"A searing bolt; double against {U}."],[12,10,"fear",{t:8,holy:1.5},"Foes in sight flee; {U} burn."],[20,22,"nova",{m:1.8,r:4,holy:1.5},"Scour everything within 4 tiles."]],
+  [[1,4,"shot",{m:1.7},"A careful shot for heavy damage."],[5,6,"root",{t:5},"Hold your target still for 5 turns."],[12,12,"volley",{m:1,r:6},"Shoot every foe in sight."],[20,14,"buff",{might:15,map:1},"Reveal the map and hit harder."]],
+  [[1,4,"melee",{m:1.7,leech:0.1},"A melee blow that also heals you."],[5,9,"heal",{f:0.5},"Restore half your health."],[12,12,"buff",{might:12,iron:12},"Hit harder and take less for 12 turns."],[20,18,"bolt",{m:2.2,holy:1.5},"A heavy bolt; stronger against {U}."]]
+];
+// Six peoples. st is added to the class's starting attributes.
+const RACES = [
+  { st: [1,1,1,1], perk: "+1 to every attribute. Learns 10% faster.", xp: 1.1, skin: "#e8b88a", hair: "#5a3a1e", size: 1 },
+  { st: [1,-1,0,2], perk: "+2 Vitality, +1 Strength, -1 Dexterity. Shrugs off half of all poisonings.", tough: 1, skin: "#cf9468", hair: "#b5522a", size: 0.86 },
+  { st: [0,2,1,-1], perk: "+2 Dexterity, +1 Intellect, -1 Vitality. Sees a tile farther and lands more critical hits.", sight: 1, crit: 0.05, skin: "#f0dcc0", hair: "#e8d27a", size: 1 },
+  { st: [3,0,-2,1], perk: "+3 Strength, +1 Vitality, -2 Intellect. 15% more melee damage.", melee: 1.15, skin: "#7fa860", hair: "#26262c", size: 1 },
+  { st: [-1,2,0,0], perk: "+2 Dexterity, -1 Strength. +3 evasion and finds 25% more money.", eva: 3, luck: 1.25, skin: "#ecc49c", hair: "#7a4a22", size: 0.8 },
+  { st: [0,-1,2,2], perk: "+2 Intellect, +2 Vitality, -1 Dexterity. +3 armour and immune to poison.", ac: 3, nopoison: 1, skin: "#9fb4c4", hair: "#52626e", size: 1 }
+];
+// Companions. hp and d scale the base numbers; price is in the setting's money.
+const PETS = [
+  { hp: 1, d: 1, note: "A steady fighter at your side." },
+  { hp: 0.6, d: 0.8, fast: 1, note: "Acts twice a turn. Fragile." },
+  { hp: 0.5, d: 0.8, ranged: 1, note: "Attacks from five tiles away." },
+  { hp: 1.8, d: 1.1, taunt: 1, note: "Very tough. Foes prefer to attack it." },
+  { hp: 0.6, d: 0.4, medic: 1, note: "Mends your wounds as you travel." },
+  { hp: 1.2, d: 0.5, mule: 1, note: "Carries 12 more things for you." }
+];
+// Ground vehicles, usable outdoors only.
+const VEH = [
+  { hull: 40, price: 200, note: "The cheapest way to ride." },
+  { hull: 120, price: 600, armour: 0.5, ram: 1.3, note: "Halves damage to its hull. You hit 30% harder from it." },
+  { hull: 70, price: 450, amph: 1, note: "Also crosses water, lava and pits." }
+];
+const BIOMES = [
+  { water: 0.33, rock: 0.70, tree: 0.60 }, { water: 0.24, rock: 0.72, tree: 0.78 }, { water: 0.31, rock: 0.69, tree: 0.64 },
+  { water: 0.32, rock: 0.67, tree: 0.74 }, { water: 0.38, rock: 0.78, tree: 0.52 }, { water: 0.27, rock: 0.65, tree: 0.82 }
+];
+
+// ================= Settings =================
+// Every setting names the same rules differently. mon: 20 rows of 4, "Name,shape,colour,traits".
+// Traits: F fast, S slow and tough, R ranged, C caster, P poison, D drains, T thief, G regenerates, U vulnerable to purging, B boss.
+const RINGW = [["Might","Agility","Intellect","Vitality","Protection","Accuracy","Evasion","Regeneration","Wizardry","Vigor","the Bear","the Cat","the Owl","the Ox","Slaying"],
+  ["Might","Agility","Intellect","Vitality","Shielding","Targeting","Evasion","Regen","Focus","Vigor","Titan","Lynx","Oracle","Atlas","Slayer"]];
+const AMUW = [["Health","Mana","Warding","the Sage","Fury","Life","Clarity","the Titan","the Wind","the Archmage"],
+  ["Health","Reserve","Warding","Sage","Fury","Life","Clarity","Colossus","Wind","Mastermind"]];
+const THEMES = {
+  fantasy: {
+    name: "Fantasy", blurb: "Swords, spells and skyships.", sub: "Somewhere past the last star, something still wears the crown.",
+    coin: "gold", mana: "Mana", U: "the undead", galaxy: "Astral Sea", world: "realm", ship: "skyship", town: "village", lair: "The Hollow Throne",
+    intro: "Your skyship drops anchor. The Hollow King waits at the heart of the Astral Sea.", win: "The Hollow King falls, and the crown rolls empty across the floor.",
+    cls: ["Warrior","Rogue","Mage","Cleric","Ranger","Paladin"], race: ["Human","Dwarf","Elf","Orc","Halfling","Golemkin"],
+    abil: [["Power Strike","Shield Wall","Whirlwind","Last Stand"],["Backstab","Smoke Bomb","Fan of Knives","Shadow Step"],["Magic Missile","Frost Nova","Fireball","Meteor"],["Heal","Smite","Turn Undead","Divine Wrath"],["Aimed Shot","Entangle","Volley","Hawk Eye"],["Holy Strike","Lay on Hands","Aura of Courage","Judgement"]],
+    tiers: ["Crude","Sturdy","Fine","Masterwork","Runed"],
+    weap: ["Dagger","Short Sword","Mace","Spear","Hand Axe","Long Sword","War Hammer","Battle Axe","Staff","Sceptre","Short Bow","Crossbow"],
+    arm: ["Robe","Leather Armour","Chain Mail","Plate Armour","Shield","Helm","Boots","Gauntlets"],
+    ring: "Ring of {}", amu: "Amulet of {}", words: 0,
+    pot: ["Potion of Healing","Potion of Greater Healing","Potion of Mana","Elixir of Restoration","Potion of Strength","Potion of Dexterity","Potion of Intellect","Potion of Vitality","Potion of Haste","Potion of Might","Potion of Ironskin","Antidote","Potion of Regeneration","Potion of Experience","Potion of Shadows"],
+    scr: ["Scroll of Teleport","Scroll of Mapping","Scroll of Fireball","Scroll of Lightning","Scroll of Frost","Scroll of Enchant Weapon","Scroll of Enchant Armour","Scroll of Fear","Scroll of Sleep","Scroll of Healing Word","Scroll of Sanctuary","Scroll of Treasure","Scroll of Banishment","Scroll of Time","Scroll of Blinking"],
+    wand: ["Wand of Fire","Wand of Frost","Wand of Lightning","Wand of Slowing","Wand of Striking","Wand of Draining","Wand of Sleep","Wand of Banishing","Wand of Wonder","Rod of Healing"],
+    food: ["Ration","Loaf of Bread","Wheel of Cheese","Dried Meat","Honeycake"],
+    gem: ["Quartz","Amber","Garnet","Amethyst","Topaz","Opal","Sapphire","Emerald","Ruby","Diamond"],
+    art: ["Widow's Needle","Gravewind Blade","Ember Maul","Thunderhead Axe","Serpent Spear","Vowkeeper Mace","The Quiet Bow","Starfall Sceptre","Staff of the Ninth Tide","Hollow Crown","Bulwark of Aeons","Mantle of Ash","Wyrmscale Hauberk","Kingsguard Plate","Treads of the Hare","Graspers of the Forge","Band of Echoes","Ring of the Hollow King","Heart of the Mountain","Lantern Charm"],
+    npc: ["Apothecary","Armourer","Curio Dealer","Stablemaster","Reeve"],
+    pets: ["War Hound","Shadow Cat","Hunting Hawk","Tame Bear","Healing Sprite","Pack Mule"], petShape: ["d","d","b","G","g","d"],
+    veh: ["Riding Horse","War Wagon","River Drake"],
+    biome: ["Greenwood","Sunscorch","Frostmark","Ashlands","Mirefen","Stonewaste"],
+    site: [["Cave","Warren","Grotto","Barrow"],["Crypt","Keep","Vault","Catacomb"]],
+    syl: [["Ael","Bran","Cor","Dun","Eld","Fen","Gar","Hal","Ith","Mor","Nar","Oth","Rhi","Syl","Thal","Val","Wyn"],["a","e","i","o","an","or","en","ar","il"],["dor","heim","wyn","mere","gard","reth","moor","vale","thas","mar"]],
+    mon: [
+      "Giant Rat,r,br|Cave Bat,b,gy,F|Kobold,h,or|Green Slime,s,gn,S", "Goblin,h,gn|Giant Spider,i,pu,P|Skeleton,k,wh,U|Fire Beetle,i,rd",
+      "Hobgoblin,h,or|Kobold Shaman,h,bl,C|Giant Centipede,i,ye,P|Zombie,k,gn,US", "Orc,h,gn|Goblin Archer,h,ye,R|Ghoul,k,gy,UP|Imp,b,rd,CF",
+      "Orc Shaman,h,bl,C|Warg,d,gy,F|Bandit,h,ye,T|Animated Armour,m,wh,S", "Ogre,G,or|Dark Acolyte,h,pu,C|Giant Scorpion,i,rd,P|Wight,g,wh,UD",
+      "Troll,G,gn,G|Cutpurse,h,gy,TF|Shadow Hound,d,pu,F|Gargoyle,b,gy", "Ettin,G,or|Wraith,g,bl,UD|Basilisk,l,ye,P|Fire Imp,b,or,CF",
+      "Minotaur,G,br|Necromancer,h,pu,C|Mummy,k,ye,US|Stone Golem,m,gy,S", "Hill Giant,G,br|Dark Knight,h,gy|Wyvern,D,gn,PF|Spectre,g,pu,UD",
+      "Cave Troll,G,gy,G|Manticore,d,or,R|Phase Spider,i,bl,PF|Ogre Mage,G,pu,C", "Frost Giant,G,bl|Banshee,g,wh,UC|Iron Golem,m,wh,S|Hellhound,d,rd,F",
+      "Chimera,d,or|Vampire,h,rd,UDG|Drake,D,gn|Brain Leech,e,pu,CD", "Fire Giant,G,rd|Gorgon,l,gn,R|Living Shadow,g,gy,UF|Storm Mage,h,bl,C",
+      "Young Dragon,D,rd,R|Greater Wraith,g,bl,UD|Abyssal Hound,d,pu,F|Demonologist,h,rd,C", "Hydra,l,gn,G|Lich,k,pu,CU|Horned Demon,G,rd,S|Night Stalker,h,bl,TF",
+      "Frost Wyrm,D,bl,R|Vampire Lord,h,pu,UDG|Titan Golem,m,or,S|Arch Mage,h,ye,C", "Elder Dragon,D,or,R|Demon Lord,G,pu|Bone Colossus,k,wh,US|Soul Eater,e,bl,DC",
+      "Ancient Wyrm,D,pu,RG|Archlich,k,wh,CUG|Abyss Knight,h,rd|Void Horror,e,gy,DF", "Hollow Champion,h,ye|Throne Guardian,m,ye,S|Crown Wraith,g,ye,UD|The Hollow King,k,ye,BCGU"
+    ]
+  },
+  scifi: {
+    name: "Sci-fi", blurb: "Starships, psionics and rogue machines.", sub: "At the galactic core, a dead mind still gives orders.",
+    coin: "credits", mana: "Energy", U: "machines", galaxy: "Galaxy", world: "planet", ship: "starship", town: "outpost", lair: "The Hollow Core",
+    intro: "Your starship sets down. The Hollow King, the machine at the galactic core, is still broadcasting.", win: "The Hollow King's last process ends. The core goes quiet.",
+    cls: ["Soldier","Infiltrator","Psion","Medic","Sharpshooter","Vanguard"], race: ["Terran","Korrite","Sylari","Vrask","Tikkit","Synthetic"],
+    abil: [["Power Strike","Shield Protocol","Whirlwind","Last Stand"],["Backstab","Smoke Charge","Blade Fan","Phase Step"],["Psi Bolt","Cryo Nova","Plasma Burst","Singularity"],["Nano Heal","Disruptor Bolt","Disruptor Wave","Purge Field"],["Aimed Shot","Snare Mine","Suppressing Fire","Target Scan"],["Charged Strike","Field Repair","Rally Field","Judgement"]],
+    tiers: ["Surplus","Standard","Advanced","Prototype","Xenotech"],
+    weap: ["Mono-Knife","Vibro-Blade","Shock Baton","Force Pike","Plasma Cutter","Arc Sabre","Grav Hammer","Power Axe","Focus Rod","Psi Amp","Laser Pistol","Pulse Rifle"],
+    arm: ["Psi Weave","Flex Suit","Combat Mesh","Powered Plate","Deflector","Visor Helm","Mag Boots","Servo Gloves"],
+    ring: "{} Implant", amu: "{} Module", words: 1,
+    pot: ["Medi-Gel","Trauma Gel","Energy Cell","Nanite Infusion","Strength Gene-Mod","Reflex Gene-Mod","Cortex Gene-Mod","Vitality Gene-Mod","Haste Stim","Might Stim","Hardening Stim","Antitoxin","Regen Patch","Skill Imprint","Cloak Stim"],
+    scr: ["Recall Beacon","Survey Drone","Plasma Grenade","Rail Charge","Cryo Grenade","Weapon Upgrade Kit","Armour Upgrade Kit","Sonic Emitter","Sleep Gas Canister","Repair Swarm","Holo Decoy","Loot Scanner","Singularity Charge","Stasis Pulse","Blink Charge"],
+    wand: ["Flame Projector","Cryo Projector","Arc Projector","Stasis Projector","Kinetic Projector","Leech Beam","Sedative Beam","Displacer","Prototype X","Medi-Beam"],
+    food: ["Ration Bar","Protein Paste","Hydro Greens","Synth Steak","Real Chocolate"],
+    gem: ["Copper Ore","Data Shard","Titanium Ingot","Iridium Nugget","Alien Fossil","Quantum Chip","Dark Matter Vial","Xeno Pearl","Star Sapphire","Void Crystal"],
+    art: ["Whisper Needle","Starwind Edge","Nova Maul","Thunderhead Cleaver","Serpent Pike","Oathkeeper Baton","The Quiet Rifle","Starfall Amp","Rod of the Ninth Tide","Hollow Crown","Aegis of Aeons","Mantle of Ash","Wyrmscale Suit","Kingsguard Exo","Hare Striders","Forge Grips","Echo Implant","Implant of the Hollow King","Heart of the Station","Lantern Module"],
+    npc: ["Medtech","Quartermaster","Xeno Trader","Hangar Chief","Marshal"],
+    pets: ["K-9 Unit","Stalker Felid","Gun Drone","Loader Mech","Medi-Drone","Cargo Bot"], petShape: ["d","d","b","m","b","m"],
+    veh: ["Hoverbike","Assault Rover","Skimmer"],
+    biome: ["Garden world","Desert world","Ice world","Lava world","Swamp world","Dead moon"],
+    site: [["Cavern","Hive","Sinkhole","Lava Tube"],["Derelict","Lab","Bunker","Relay Station"]],
+    syl: [["Zar","Kep","Vel","Tau","Ory","Xan","Cyg","Prox","Ald","Rig","Den","Sol","Myr","Ach","Tyr","Ves","Nox"],["a","i","o","u","ar","on","ex","ir","an"],["is","os","ion","ar","us","ae","on","ix","a","eth"]],
+    mon: [
+      "Vent Rat,r,br|Spore Mite,i,gn,F|Scrap Drone,b,gy,U|Ooze,s,gn,S", "Feral Colonist,h,or|Needle Crawler,i,pu,P|Maintenance Bot,m,wh,U|Glow Beetle,i,ye",
+      "Raider,h,rd|Psi Adept,h,bl,C|Acid Larva,l,ye,P|Rusted Loader,m,br,US", "Pirate,h,gn|Pirate Gunner,h,ye,R|Plague Husk,k,gy,P|Stinger Drone,b,rd,UCF",
+      "Cult Psion,h,bl,C|Xeno Hound,d,gy,F|Smuggler,h,ye,T|Sentry Frame,m,wh,US", "Brute Alien,G,or|Void Acolyte,h,pu,C|Razor Scorpid,i,rd,P|Leech Wisp,g,wh,D",
+      "Regenerator,G,gn,G|Data Thief,h,gy,TF|Phase Hound,d,pu,F|Gun Turret,m,gy,UR", "Twin-Brain Brute,G,or|Null Wraith,g,bl,D|Spitter Lizard,l,ye,P|Flame Drone,b,or,UCF",
+      "Horned Xeno,G,br|Mind Bender,h,pu,C|Cryo Sleeper,k,ye,S|Mining Mech,m,gy,US", "Heavy Trooper,G,br|Black Ops Agent,h,gy|Sky Ray,D,gn,PF|Static Ghost,g,pu,D",
+      "Cave Behemoth,G,gy,G|Spine Thrower,d,or,R|Blink Spider,i,bl,PF|Psi Brute,G,pu,C", "Cryo Giant,G,bl|Screamer,g,wh,C|Siege Mech,m,wh,US|Plasma Hound,d,rd,F",
+      "Splice Beast,d,or|Blood Synth,h,rd,UDG|Raptor Drake,D,gn|Cortex Leech,e,pu,CD", "Magma Giant,G,rd|Gorgon Turret,m,gn,UR|Shade Swarm,g,gy,F|Storm Psion,h,bl,C",
+      "Star Drake,D,rd,R|Void Wraith,g,bl,D|Rift Hound,d,pu,F|Summoner Prime,h,rd,C", "Hydra Worm,l,gn,G|Overmind Node,e,pu,CU|War Titan,G,rd,S|Ghost Operative,h,bl,TF",
+      "Frost Leviathan,D,bl,R|Synth Lord,h,pu,UDG|Colossus Mech,m,or,US|Arch Psion,h,ye,C", "Elder Leviathan,D,or,R|Alien Warlord,G,pu|Dreadnought Frame,m,wh,US|Mind Eater,e,bl,DC",
+      "Ancient Leviathan,D,pu,RG|Core Avatar,m,wh,CUG|Void Knight,h,rd|Rift Horror,e,gy,DF", "Hollow Praetorian,h,ye|Core Guardian,m,ye,US|Crown Echo,g,ye,D|The Hollow King,m,ye,BCGU"
+    ]
+  },
+  wasteland: {
+    name: "Post-apocalypse", blurb: "Scrap, mutants and salvaged shuttles.", sub: "The worlds burned long ago. One warlord kept his crown.",
+    coin: "scrap", mana: "Grit", U: "mutants", galaxy: "Fallen Reach", world: "world", ship: "shuttle", town: "settlement", lair: "The Hollow Bunker",
+    intro: "Your patched-up shuttle lands hard. The Hollow King rules the Fallen Reach from its dead centre.", win: "The Hollow King drops. The crown was only ever scrap.",
+    cls: ["Bruiser","Scavenger","Tinker","Doc","Hunter","Warden"], race: ["Survivor","Bunker-born","Glowkin","Brute","Tunnel Runt","Relic Unit"],
+    abil: [["Power Strike","Brace","Whirlwind","Last Stand"],["Backstab","Smoke Bomb","Shrapnel Fan","Shadow Step"],["Spark Shot","Freon Burst","Firebomb","The Big One"],["Patch Up","Purge Shot","Rad Flare","Cleansing Fire"],["Aimed Shot","Bear Trap","Volley","Eagle Eye"],["Righteous Strike","Second Wind","Rally","Judgement"]],
+    tiers: ["Rusty","Patched","Reforged","Pre-War","Pristine"],
+    weap: ["Shiv","Machete","Lead Pipe","Rebar Spear","Hatchet","Scrap Sword","Sledgehammer","Chain Axe","Antenna Staff","Tuner","Pipe Pistol","Hunting Rifle"],
+    arm: ["Lab Coat","Leathers","Scrap Mail","Riot Plate","Road-Sign Shield","Gas Mask","Work Boots","Welding Gloves"],
+    ring: "{} Charm", amu: "{} Talisman", words: 1,
+    pot: ["Med Syringe","Surgeon's Kit","Moonshine","Miracle Serum","Muscle Serum","Reflex Serum","Brain Serum","Hardy Serum","Speed Pills","Rage Pills","Stoneskin Pills","Anti-Venom","Healing Salve","Old-World Manual","Shadow Dust"],
+    scr: ["Anomaly Shard","Old Survey Map","Molotov","Battery Bomb","Nitrogen Flask","Whetstone Kit","Rivet Kit","Air-Raid Siren","Chloroform Bomb","First-Aid Kit","Camo Tarp","Metal Detector","Rad Bomb","Adrenal Shot","Grapple Hook"],
+    wand: ["Flamethrower","Frost Sprayer","Tesla Coil","Glue Gun","Nail Gun","Blood Siphon","Tranq Gun","Anomaly Lantern","Mystery Gadget","Auto-Doc"],
+    food: ["Canned Beans","Stale Crackers","Mystery Meat","Jerky","Tinned Peaches"],
+    gem: ["Old Coins","Copper Wire","Wristwatch","Silverware","Circuit Board","Gold Tooth","Jewellery Box","Solar Cell","Power Core","Sealed Bond"],
+    art: ["Widow's Shiv","Gravewind Machete","Ember Sledge","Thunderhead Saw","Serpent Rebar","Vowkeeper Pipe","The Quiet Rifle","Starfall Tuner","Antenna of the Ninth Tide","Hollow Crown","Bulwark of Ages","Coat of Ash","Gatorhide Leathers","Kingsguard Plate","Hare Runners","Forge Mitts","Echo Charm","Charm of the Hollow King","Heart of the Mountain","Lantern Talisman"],
+    npc: ["Doc","Gunsmith","Junk Trader","Mechanic","Sheriff"],
+    pets: ["Wasteland Mutt","Alley Cat","Trained Vulture","Mutant Bear","Medic Bot","Two-Headed Ox"], petShape: ["d","d","b","G","m","d"],
+    veh: ["Dirt Bike","Armoured Truck","Airboat"],
+    biome: ["Overgrown world","Dust world","Winter world","Scorched world","Toxic marsh","Dead rock"],
+    site: [["Sewer","Burrow","Sinkhole","Mine"],["Bunker","Mall","Subway","Factory"]],
+    syl: [["Rust","Ash","Dust","Grit","Salt","Bone","Iron","Cinder","Bleak","Dry","Black","Red","Lost","Last","New","Old","Far","Dead","Burnt","Broken","Lone","Grey","Scrap","Smoke"],[""],[" Hope"," Reach"," Haven"," Rock"," Flats"," Hollow"," Gulch"," Station"," Prime"," Landing"," Ridge"," Wells"]],
+    mon: [
+      "Sewer Rat,r,br|Ash Crow,b,gy,F|Scavenger,h,or|Sludge,s,gn,S", "Feral Dog,d,br,F|Rad Roach,i,pu,P|Shambler,k,gn,U|Fire Ant,i,rd",
+      "Raider,h,or|Chem Cook,h,bl,C|Giant Millipede,i,ye,P|Bloated Shambler,k,gy,US", "Road Thug,h,gn|Raider Sniper,h,ye,R|Glowing Ghoul,k,gn,UP|Rad Bat,b,rd,F",
+      "Cult Preacher,h,bl,C|Wolf,d,gy,F|Pickpocket,h,ye,T|Rusted Sentry,m,wh,S", "Mutant Brute,G,or,U|Plague Doctor,h,pu,C|Rad Scorpion,i,rd,P|Dust Wraith,g,wh,UD",
+      "Regrowth Mutant,G,gn,UG|Looter,h,gy,TF|Rabid Hound,d,pu,F|Mutant Vulture,b,gy", "Two-Headed Brute,G,or,U|Fallout Ghost,g,bl,UD|Spitting Gecko,l,ye,P|Firebug Raider,h,or,CF",
+      "Bullhorn Mutant,G,br,U|Mad Chemist,h,pu,C|Bandaged One,k,ye,US|Junk Golem,m,gy,S", "Wasteland Giant,G,br|Road Captain,h,gy|Glider Lizard,D,gn,PF|Static Phantom,g,pu,UD",
+      "Tunnel Behemoth,G,gy,UG|Quill Beast,d,or,R|Trapdoor Spider,i,bl,PF|Brain Mutant,G,pu,UC", "Winter Giant,G,bl|Siren,g,wh,UC|War Machine,m,wh,S|Flame Hound,d,rd,F",
+      "Splice Beast,d,or|Blood Baron,h,rd,DG|Marsh Gator,l,gn|Brain Leech,e,pu,CD", "Furnace Giant,G,rd|Nail Turret,m,gn,R|Smog Shade,g,gy,UF|Storm Caller,h,bl,C",
+      "Rad Drake,D,rd,R|Greater Wraith,g,bl,UD|Hell Hound,d,pu,F|Doom Prophet,h,rd,C", "Hydra Gator,l,gn,G|Glowing Elder,k,pu,CU|Siege Brute,G,rd,US|Night Stalker,h,bl,TF",
+      "Frost Drake,D,bl,R|Blood King,h,pu,DG|Titan Machine,m,or,S|Arch Prophet,h,ye,C", "Elder Drake,D,or,R|Warlord,G,pu|Bone Colossus,k,wh,US|Mind Eater,e,bl,DC",
+      "Ancient Drake,D,pu,RG|Undying Elder,k,wh,CUG|Iron Knight,h,rd|Fallout Horror,e,gy,UDF", "Hollow Champion,h,ye|Throne Machine,m,ye,S|Crown Wraith,g,ye,UD|The Hollow King,G,ye,BCG"
+    ]
+  }
+};
+
+// ================= Items and monsters, built for the chosen setting =================
+let TH = THEMES.fantasy, ITEMS = [], BYKEY = {}, MON = [], BOSS = 0;
+const TIERM = [[1,1],[1.5,4],[2.2,8],[3.1,12],[4.2,16]];
+const eqVal = (lv, f) => Math.round((12 + lv * lv * 5) * f);
+const MCOL = { br: "#a0703c", gy: "#8a8f98", or: "#d2772a", ye: "#d4ad2c", gn: "#3f9d55", pu: "#9a59c2", wh: "#c4c0cf", rd: "#d0463c", bl: "#4a86d8" };
+const SLOTS = [["weapon","Weapon"],["off","Off hand"],["body","Body"],["head","Head"],["hands","Hands"],["feet","Feet"],["ring1","Ring"],["ring2","Ring"],["amulet","Amulet"]];
+const STACKS = { potion: 1, scroll: 1, food: 1, gem: 1 };
+const tx = s => s.replace(/\{U\}/g, TH.U);
+
+function setTheme(key) {
+  TH = THEMES[key] || THEMES.fantasy;
+  ITEMS = []; BYKEY = {};
+  const add = (key, o) => { o.id = ITEMS.length; o.key = key; o.b = o.b || {}; ITEMS.push(o); BYKEY[key] = o; };
+  // 60 weapons: 12 kinds in 5 grades
+  [[1,4,3,{fin:1}],[2,6,1,{fin:1}],[2,7,0],[2,8,0],[3,7,0],[3,9,0],[4,10,-1],[4,12,-2],[1,5,0,{sp:2}],[1,3,0,{sp:4}],[2,6,0,{ranged:1}],[3,9,-1,{ranged:1}]].forEach(([a,z,acc,x], k) => {
+    TIERM.forEach(([m,lv], t) => {
+      const b = { acc };
+      if (x && x.sp) b.sp = Math.round(x.sp * (1 + t * 0.9));
+      add("w" + k + "_" + t, { name: TH.tiers[t] + " " + TH.weap[k], kind: "weapon", slot: "weapon", g: ")", lv, val: eqVal(lv, 1), w: [Math.round(a * m) + t, Math.round(z * m) + t * 2], ranged: !!(x && x.ranged), fin: !!(x && x.fin), b });
+    });
+  });
+  // 40 armours: 8 kinds in 5 grades
+  const ACM = [1, 1.6, 2.4, 3.4, 4.6];
+  [[1,"body",{sp:1,mp:5}],[2,"body",{eva:1}],[4,"body",{}],[6,"body",{eva:-2}],[2,"off",{}],[1,"head",{}],[1,"feet",{}],[1,"hands",{}]].forEach(([ac,slot,x], k) => {
+    TIERM.forEach(([m,lv], t) => {
+      const b = {};
+      for (const s in x) b[s] = x[s] > 0 ? x[s] * (t + 1) : x[s];
+      add("a" + k + "_" + t, { name: TH.tiers[t] + " " + TH.arm[k], kind: "armour", slot, g: "[", lv, val: eqVal(lv, slot === "body" ? 1.1 : 0.6), ac: Math.round(ac * ACM[t]), b });
+    });
+  });
+  // 15 rings, 10 amulets
+  [[3,{str:3}],[3,{dex:3}],[3,{int:3}],[3,{vit:3}],[5,{ac:4}],[4,{acc:3}],[5,{eva:3}],[8,{regen:1}],[9,{sp:4,mp:15}],[7,{hp:25}],[12,{str:6}],[12,{dex:6}],[12,{int:6}],[12,{vit:6}],[14,{dmg:4,acc:2}]]
+    .forEach(([lv,b], i) => add("r" + i, { name: TH.ring.replace("{}", RINGW[TH.words][i]), kind: "ring", slot: "ring", g: "=", lv, val: eqVal(lv, 1.4), b }));
+  [[2,{hp:20}],[2,{mp:20}],[6,{ac:3,eva:2}],[8,{sp:5}],[9,{dmg:3}],[11,{regen:1,hp:30}],[10,{mregen:1,mp:15}],[14,{str:4,vit:4}],[14,{dex:5,eva:3}],[16,{int:6,sp:6,mp:30}]]
+    .forEach(([lv,b], i) => add("m" + i, { name: TH.amu.replace("{}", AMUW[TH.words][i]), kind: "amulet", slot: "amulet", g: '"', lv, val: eqVal(lv, 1.5), b }));
+  const M = TH.mana.toLowerCase();
+  // 15 potions
+  [[1,30,"heal:40","Restores 40% of your health."],[6,90,"heal:80","Restores 80% of your health."],[1,35,"mana:60","Restores 60% of your " + M + "."],
+   [12,260,"full","Fully restores health and " + M + "."],[5,300,"stat:0","Permanently +1 Strength."],[5,300,"stat:1","Permanently +1 Dexterity."],
+   [5,300,"stat:2","Permanently +1 Intellect."],[5,300,"stat:3","Permanently +1 Vitality."],[4,80,"st:haste:20","Foes act half as often for 20 turns."],
+   [3,70,"st:might:30","Hit harder for 30 turns."],[3,70,"st:iron:30","Much more armour for 30 turns."],[1,20,"cure","Cures poison."],
+   [4,60,"st:regen:40","Heal steadily for 40 turns."],[8,400,"xp","Grants a large share of a level."],[6,90,"st:stealth:15","Foes lose track of you for 15 turns."]]
+    .forEach(([lv,val,eff,d], i) => add("p" + i, { name: TH.pot[i], kind: "potion", g: "!", lv, val, eff, d }));
+  // 15 one-use devices
+  [[1,40,"tele","Sends you somewhere else on the map."],[2,50,"map","Reveals the map."],[3,70,"fire","Burns every foe in sight."],
+   [4,80,"bolt","A heavy bolt at your target."],[5,90,"frost","Damages and freezes every foe in sight."],[6,250,"ench_w","Your weapon gains +1 damage for good."],
+   [6,250,"ench_a","Your body armour gains +1 for good."],[3,60,"fear","Foes in sight flee."],[3,60,"sleep","Foes in sight fall asleep."],
+   [2,45,"heal:50","Restores half your health."],[7,110,"st:stealth:20","Foes lose track of you for 20 turns."],[4,60,"treasure","Shows every item and coin on the map."],
+   [10,220,"banish","Removes every ordinary foe in sight."],[9,160,"st:haste:12","Foes act half as often for 12 turns."],[1,25,"blink","A short hop away from danger."]]
+    .forEach(([lv,val,eff,d], i) => add("s" + i, { name: TH.scr[i], kind: "scroll", g: "?", lv, val, eff, d }));
+  [[1,8,15],[1,6,10],[2,14,20],[3,20,25],[6,45,40]]
+    .forEach(([lv,val,p], i) => add("f" + i, { name: TH.food[i], kind: "food", g: "%", lv, val, eff: "food:" + p, d: "Restores " + p + "% of your health and some " + M + "." }));
+  // 10 charged tools
+  [[3,"w_fire","Burns the target and anything beside it."],[4,"w_frost","Hurts and freezes the target."],[6,"w_bolt","A strong bolt."],
+   [2,"w_slow","Holds the target for 6 turns."],[1,"w_strike","A bolt of force."],[8,"w_drain","Hurts the target and heals you."],
+   [3,"w_sleep","Puts the target to sleep."],[7,"w_tele","Throws the target across the map."],[5,"w_wonder","Does something. Nobody knows what."],[9,"w_heal","Restores 40% of your health."]]
+    .forEach(([lv,eff,d], i) => add("d" + i, { name: TH.wand[i], kind: "wand", g: "/", lv, val: eqVal(lv, 1.2) + 40, eff, d }));
+  [[1,25],[2,45],[4,80],[6,130],[8,200],[10,300],[12,450],[14,650],[16,900],[18,1400]]
+    .forEach(([lv,val], i) => add("g" + i, { name: TH.gem[i], kind: "gem", g: "*", lv, val, d: "Worth good money to any trader." }));
+  // 20 artifacts, one of each per game
+  [["weapon",8,{w:[9,16],fin:true,b:{acc:6,dex:3}}],["weapon",12,{w:[14,30],b:{acc:3,str:3}}],["weapon",14,{w:[20,36],b:{str:5}}],
+   ["weapon",17,{w:[24,48],b:{acc:1,dmg:3}}],["weapon",10,{w:[11,26],b:{acc:4,dex:2}}],["weapon",13,{w:[14,30],b:{sp:6,vit:4}}],
+   ["weapon",11,{w:[12,24],ranged:true,b:{acc:5,dex:4}}],["weapon",12,{w:[5,12],ranged:true,b:{sp:14,int:4}}],["weapon",16,{w:[10,22],b:{sp:18,mp:40}}],
+   ["head",15,{ac:10,b:{int:4,str:4}}],["off",14,{ac:16,b:{vit:4}}],["body",12,{ac:8,b:{sp:8,mp:30,eva:3}}],
+   ["body",14,{ac:22,b:{hp:30}}],["body",17,{ac:34,b:{vit:5}}],["feet",9,{ac:5,b:{eva:6,dex:3}}],
+   ["hands",11,{ac:6,b:{dmg:4,str:3}}],["ring",13,{b:{sp:8,mregen:1}}],["ring",18,{b:{str:5,dex:5,int:5,vit:5}}],
+   ["amulet",15,{b:{hp:60,regen:1,ac:4}}],["amulet",8,{b:{acc:4,eva:4,mp:20}}]]
+    .forEach(([slot,lv,x], i) => add("x" + i, Object.assign({ name: TH.art[i], kind: slot === "weapon" ? "weapon" : slot === "ring" || slot === "amulet" ? slot : "armour", slot, g: slot === "weapon" ? ")" : slot === "ring" ? "=" : slot === "amulet" ? '"' : "[", lv, val: eqVal(lv, 3), art: true }, x)));
+
+  // 80 kinds of foe: four for each of twenty levels.
+  MON = [];
+  TH.mon.forEach((row, li) => row.split("|").forEach((s, vi) => {
+    const [name, shape, col, tr] = s.split(",");
+    const L = li + 1, m = { name, shape, col: MCOL[col], lv: L, i: MON.length };
+    for (const ch of tr || "") m[ch] = true;
+    let hpM = 0.85 + vi * 0.09, dM = 1;
+    if (m.S) { hpM *= 1.5; dM *= 1.25; }
+    if (m.F) { hpM *= 0.7; dM *= 0.8; }
+    if (m.R || m.C) hpM *= 0.8;
+    if (m.B) { hpM *= 6; dM *= 1.5; }
+    m.hp = Math.round((8 + L * 6 + L * L * 0.9) * hpM);
+    m.acc = 2 + L * 1.3; m.eva = L * 0.9 + (m.F ? 3 : 0); m.ac = Math.floor(L * 0.7);
+    m.d = [Math.round((1 + L * 0.9) * dM), Math.round((3 + L * 2.4) * dM)];
+    m.xp = Math.round((4 + L * L * 1.3) * (m.B ? 10 : 1));
+    MON.push(m);
+  }));
+  BOSS = MON.length - 1;
+}
+setTheme("fantasy");
+
+function describe(it, e) {
+  const out = [];
+  const en = e && e.e ? e.e : 0;
+  if (it.w) out.push("Damage " + (it.w[0] + en) + "-" + (it.w[1] + en) + (it.ranged ? ", ranged" : it.fin ? ", uses Dexterity if higher" : ""));
+  if (it.ac) out.push("Armour " + (it.ac + en));
+  const L = { acc: "accuracy", eva: "evasion", sp: "power", hp: "health", mp: TH.mana.toLowerCase(), dmg: "damage", str: "Strength", dex: "Dexterity", int: "Intellect", vit: "Vitality", ac: "armour", regen: "health regeneration", mregen: TH.mana.toLowerCase() + " regeneration" };
+  for (const k in it.b) if (it.b[k]) out.push((it.b[k] > 0 ? "+" : "") + it.b[k] + " " + L[k]);
+  if (it.d) out.push(it.d);
+  if (e && e.c != null) out.push(e.c + " charges");
+  return out.join(", ");
+}
+const label = e => ITEMS[e.id].name + (e.e ? " +" + e.e : "") + (e.n > 1 ? " ×" + e.n : "");
+// ================= The galaxy =================
+// One seed grows everything: where the stars sit, how they link, what worlds circle them,
+// and the layout of every map on every world.
+const GSIZE = { small: 36, medium: 90, large: 200 };
+const SITEADJ = ["Sunken","Silent","Broken","Black","Forgotten","Howling","Burnt","Drowned","Hidden","Red","Bitter","Pale","Twisted","Nameless","Weeping","Iron"];
+const ROMAN = ["I","II","III","IV"];
+function genGalaxy(seed, size) {
+  return seeded("galaxy|" + seed + "|" + size, () => {
+    const n = GSIZE[size] || GSIZE.medium, stars = [{ x: 0, y: 0 }];
+    const arms = 2 + rnd(3), twist = 2.4 + RNG() * 2.2, minD = 0.8 / Math.sqrt(n);
+    for (let tries = 0; stars.length < n && tries < n * 80; tries++) {
+      const r = 0.12 + 0.88 * Math.pow(RNG(), 0.75);
+      const ang = rnd(arms) * Math.PI * 2 / arms + r * twist + (RNG() - 0.5) * (1.5 - r);
+      const x = r * Math.cos(ang), y = r * Math.sin(ang);
+      if (stars.every(s => Math.hypot(s.x - x, s.y - y) >= minD)) stars.push({ x, y });
+    }
+    const N = stars.length, names = new Set();
+    for (const s of stars) {
+      let nm = "";
+      for (let t = 0; t < 30; t++) { nm = pick(TH.syl[0]) + pick(TH.syl[1]) + pick(TH.syl[2]); if (!names.has(nm)) break; }
+      while (names.has(nm)) nm += " " + pick(["Minor","Major","Beta","Gamma","Delta","Tau"]);
+      names.add(nm); s.name = nm; s.links = [];
+    }
+    const link = (a, b) => { if (a !== b && !stars[a].links.includes(b)) { stars[a].links.push(b); stars[b].links.push(a); } };
+    const d2 = (a, b) => (stars[a].x - stars[b].x) ** 2 + (stars[a].y - stars[b].y) ** 2;
+    for (let i = 0; i < N; i++) {
+      const near = stars.map((_, j) => j).filter(j => j !== i).sort((a, b) => d2(i, a) - d2(i, b));
+      link(i, near[0]); if (near.length > 1) link(i, near[1]); if (near.length > 2 && RNG() < 0.45) link(i, near[2]);
+    }
+    // Join any islands by their shortest gap so every star can be reached.
+    for (;;) {
+      const comp = new Int16Array(N).fill(-1); let c = 0;
+      for (let i = 0; i < N; i++) { if (comp[i] >= 0) continue; const q = [i]; comp[i] = c; for (let h = 0; h < q.length; h++) for (const j of stars[q[h]].links) if (comp[j] < 0) { comp[j] = c; q.push(j); } c++; }
+      if (c === 1) break;
+      let best = null, bd = 1e9;
+      for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) if (comp[i] !== comp[j] && d2(i, j) < bd) { bd = d2(i, j); best = [i, j]; }
+      link(best[0], best[1]);
+    }
+    // Danger falls with distance from the core. The journey starts at the far rim.
+    const hop = new Int16Array(N).fill(-1), q = [0]; hop[0] = 0;
+    for (let h = 0; h < q.length; h++) for (const j of stars[q[h]].links) if (hop[j] < 0) { hop[j] = hop[q[h]] + 1; q.push(j); }
+    let hmax = 1, start = 1 % N;
+    for (let i = 0; i < N; i++) if (hop[i] > hmax) { hmax = hop[i]; start = i; }
+    stars.forEach((s, i) => {
+      s.hop = hop[i];
+      s.danger = i === 0 ? MAXD : clamp(Math.round(MAXD - (MAXD - 1) * hop[i] / hmax), 1, MAXD - 1);
+      s.worlds = [];
+      const nw = i === 0 ? 1 : 1 + rnd(3);
+      for (let j = 0; j < nw; j++) {
+        const w = { name: i === 0 ? s.name : s.name + " " + ROMAN[j], biome: i === 0 ? 3 : i === start && j === 0 ? 0 : rnd(6), danger: clamp(s.danger + (j ? rnd(2) : 0), 1, MAXD), town: i !== 0 && (j === 0 || RNG() < 0.5), sites: [] };
+        if (i === 0) w.sites.push({ kind: 1, name: TH.lair, floors: 4, lair: true });
+        else for (let k = 2 + rnd(2); k > 0; k--) { const kind = rnd(2); w.sites.push({ kind, name: "The " + pick(SITEADJ) + " " + pick(TH.site[kind]), floors: 2 + rnd(2) }); }
+        s.worlds.push(w);
+      }
+    });
+    return { stars, start, hmax, arms };
+  });
+}
+
+// ================= Maps =================
+// Tiles. Indoors: 0 wall, 1 floor, 2 way down, 3 way up, 4 closed door, 5 open door.
+// Outdoors: 10 ground, 11 trees, 12 water, 13 rock, 14 road, 15 rough ground, 16 building, 17 plaza, 18 site entrance, 19 landing pad.
+const solid = t => t === 0 || t === 12 || t === 13 || t === 16;
+const opaque = t => t === 0 || t === 4 || t === 11 || t === 13 || t === 16;
+const safe = t => t === 17 || t === 18 || t === 19;
+const PERSON = ["Maro","Edda","Tobin","Sel","Ansgar","Wyn","Corvin","Isolde","Jax","Rhea","Dane","Mira","Oskar","Petra"];
+const STOCK = [["potion","potion","scroll","scroll","food","wand"], ["weapon","armour","armour"], ["ring","amulet","wand","scroll","gem"]];
+
+function newMap(id, w, h, out) { return { id, w, h, out, tiles: new Uint8Array(w * h), seen: new Uint8Array(w * h), mons: [], items: [], npcs: [] }; }
+function noise2(w, h, cell) {
+  const gw = Math.ceil(w / cell) + 2, gh = Math.ceil(h / cell) + 2, g = [];
+  for (let i = 0; i < gw * gh; i++) g.push(RNG());
+  const s = t => t * t * (3 - 2 * t);
+  return (x, y) => {
+    const fx = x / cell, fy = y / cell, x0 = fx | 0, y0 = fy | 0, u = s(fx - x0), v = s(fy - y0);
+    const a = g[y0 * gw + x0], b = g[y0 * gw + x0 + 1], c = g[(y0 + 1) * gw + x0], d = g[(y0 + 1) * gw + x0 + 1];
+    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+  };
+}
+// Distances over tiles that are not solid, eight-way.
+function flood(m, sx, sy) {
+  const dist = new Int16Array(m.w * m.h).fill(-1), q = [sy * m.w + sx]; dist[q[0]] = 0;
+  for (let h = 0; h < q.length; h++) {
+    const k = q[h], x = k % m.w, y = (k / m.w) | 0;
+    for (const [dx, dy] of DIRS) {
+      const nx = x + dx, ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= m.w || ny >= m.h) continue;
+      const nk = ny * m.w + nx;
+      if (dist[nk] >= 0 || solid(m.tiles[nk])) continue;
+      dist[nk] = dist[k] + 1; q.push(nk);
+    }
+  }
+  return { dist, order: q };
+}
+function randomItem(depth, kinds) {
+  const W = { potion: 30, scroll: 20, food: 8, weapon: 12, armour: 14, ring: 4, amulet: 3, wand: 4, gem: 5 };
+  let kind;
+  if (kinds) kind = pick(kinds);
+  else {
+    let t = 0; for (const k in W) t += W[k];
+    let r = rnd(t);
+    for (const k in W) { r -= W[k]; if (r < 0) { kind = k; break; } }
+  }
+  const gear = kind === "weapon" || kind === "armour";
+  if (gear && depth >= 7 && RNG() < 0.06) {
+    const arts = ITEMS.filter(i => i.art && i.lv <= depth + 2 && !G.found.includes(i.id));
+    if (arts.length) { const a = pick(arts); G.found.push(a.id); return makeItem(a); }
+  }
+  let pool = ITEMS.filter(i => i.kind === kind && !i.art && i.lv <= depth + 1 && (!gear || i.lv >= depth - 7));
+  if (!pool.length) pool = ITEMS.filter(i => i.kind === kind && !i.art && i.lv <= depth + 3);
+  if (!pool.length) pool = ITEMS.filter(i => i.kind === "potion" && i.lv <= depth + 1);
+  return makeItem(pick(pool));
+}
+function makeItem(it) {
+  const e = { id: it.id, n: 1 };
+  if (it.kind === "wand") e.c = rr(4, 8);
+  return e;
+}
+function spawn(m, x, y, lv, el) {
+  let t = (clamp(lv, 1, MAXD) - 1) * 4 + rnd(4);
+  if (t === BOSS) t--;
+  const o = { id: G.uid++, t, x, y, hp: 1, asleep: RNG() < 0.6, flee: 0, stun: 0, hunt: false, el: el || 0 };
+  o.hp = monMax(o);
+  m.mons.push(o);
+  return o;
+}
+const monMax = m => Math.round(MON[m.t].hp * (m.el === 2 ? 2 : m.el === 1 ? 1.5 : 1));
+
+function genOut(wd) {
+  const W = 80, H = 56, m = newMap("o", W, H, true), t = m.tiles, B = BIOMES[wd.biome], D = wd.danger;
+  m.pal = wd.biome; m.lv = D;
+  const n1 = noise2(W, H, 11), n2 = noise2(W, H, 4), n3 = noise2(W, H, 7);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const e = n1(x, y) * 0.7 + n2(x, y) * 0.3, k = y * W + x;
+    t[k] = x < 1 || y < 1 || x >= W - 1 || y >= H - 1 ? 13 : e < B.water ? 12 : e > B.rock ? 13 : n3(x, y) > B.tree ? 11 : n2(x, y) > 0.62 ? 15 : 10;
+  }
+  const want = 1 + (wd.town ? 1 : 0) + wd.sites.length, pts = [];
+  let minD = 20;
+  for (let tries = 0; pts.length < want && tries < 6000; tries++) {
+    if (tries % 500 === 499) minD -= 2;
+    const x = rr(9, W - 10), y = rr(8, H - 9);
+    if (pts.every(q => Math.hypot(q.x - x, q.y - y) >= minD)) pts.push({ x, y });
+  }
+  const rect = (x0, y0, x1, y1, v) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) t[y * W + x] = v; };
+  const pad = pts[0];
+  rect(pad.x - 2, pad.y - 2, pad.x + 2, pad.y + 2, 10); t[pad.y * W + pad.x] = 19;
+  m.pad = pad; m.start = pad; m.sites = []; m.town = null;
+  let pi = 1;
+  if (wd.town) {
+    const c = pts[pi++], x0 = c.x - 6, y0 = c.y - 4;
+    rect(x0 - 1, y0 - 1, x0 + 13, y0 + 9, 10); rect(x0, y0, x0 + 12, y0 + 8, 17);
+    const lots = [[1,1,2,3],[9,1,10,3],[1,6,2,5],[9,6,10,5],[5,1,6,3]];
+    lots.forEach(([bx, by, nx, ny], i) => {
+      rect(x0 + bx, y0 + by, x0 + bx + 2, y0 + by + 1, 16);
+      const n = { x: x0 + nx, y: y0 + ny, type: i, name: pick(PERSON) + " the " + TH.npc[i] };
+      if (i < 3) {
+        n.stock = [];
+        for (let j = 0; j < 10; j++) n.stock.push(randomItem(D + 2, STOCK[i]));
+        if (i === 0) n.stock.unshift(makeItem(BYKEY[D >= 6 ? "p1" : "p0"]), makeItem(BYKEY.p2));
+      }
+      m.npcs.push(n);
+    });
+    m.town = { x: c.x, y: c.y, x0, y0 };
+  }
+  for (; pi < pts.length; pi++) { const s = pts[pi]; rect(s.x - 1, s.y - 1, s.x + 1, s.y + 1, 10); t[s.y * W + s.x] = 18; m.sites.push(s); }
+  // Roads join everything, bridging water and cutting through rock, so nothing is ever cut off.
+  const road = (a, b) => {
+    let x = a.x, y = a.y;
+    while (x !== b.x || y !== b.y) {
+      const dx = Math.abs(b.x - x), dy = Math.abs(b.y - y);
+      if (rnd(dx + dy) < dx) x += Math.sign(b.x - x); else y += Math.sign(b.y - y);
+      const k = y * W + x;
+      if (t[k] < 16) t[k] = 14;
+    }
+  };
+  const nodes = [pad].concat(m.town ? [m.town] : [], m.sites);
+  for (let i = 1; i < nodes.length; i++) road(nodes[i - 1], nodes[i]);
+  if (nodes.length > 3) road(nodes[nodes.length - 1], pad);
+  m.seen.fill(2);
+  const { dist, order } = flood(m, pad.x, pad.y);
+  const inTown = (x, y) => m.town && x >= m.town.x0 - 3 && x <= m.town.x0 + 15 && y >= m.town.y0 - 3 && y <= m.town.y0 + 11;
+  const open = order.filter(k => { const v = t[k]; return (v === 10 || v === 11 || v === 14 || v === 15) && dist[k] >= 8 && !inTown(k % W, (k / W) | 0); });
+  const used = new Set();
+  const spot = () => { for (let i = 0; i < 60 && open.length; i++) { const k = pick(open); if (!used.has(k)) { used.add(k); return { x: k % W, y: (k / W) | 0 }; } } return null; };
+  for (let i = 12 + rnd(5); i > 0; i--) { const s = spot(); if (s) spawn(m, s.x, s.y, D + pick([-2,-1,-1,0,0]), RNG() < 0.1 ? 1 : 0); }
+  for (let i = rr(5, 7); i > 0; i--) { const s = spot(); if (s) m.items.push(Object.assign(s, randomItem(D))); }
+  for (let i = rr(4, 6); i > 0; i--) { const s = spot(); if (s) m.items.push(Object.assign(s, { gold: rr(D * 4, D * 12) + 5 })); }
+  return m;
+}
+
+function genSite(wd, si, f) {
+  const W = 56, H = 36, site = wd.sites[si], m = newMap("s" + si + "f" + f, W, H, false), t = m.tiles;
+  const lv = clamp(wd.danger + f - 1, 1, MAXD), last = f >= site.floors, done = !!G.done[G.star + "." + G.world + "." + si];
+  m.lv = lv; m.pal = site.lair ? "l" : site.kind ? "s" : "c";
+  let start = null;
+  if (!site.kind) {
+    for (let tries = 0; tries < 6 && !start; tries++) {
+      let a = new Uint8Array(W * H);
+      for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) a[y * W + x] = RNG() < 0.56 ? 1 : 0;
+      for (let it = 0; it < 5; it++) {
+        const b = new Uint8Array(W * H);
+        for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+          let walls = 0;
+          for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) if (!a[(y + j) * W + x + i]) walls++;
+          b[y * W + x] = walls >= 5 ? 0 : 1;
+        }
+        a = b;
+      }
+      // Keep the largest connected cavern.
+      const seen = new Int16Array(W * H).fill(-1); let best = null;
+      for (let k = 0; k < W * H; k++) {
+        if (!a[k] || seen[k] >= 0) continue;
+        const q = [k]; seen[k] = k;
+        for (let h = 0; h < q.length; h++) { const c = q[h]; for (const [dx, dy] of DIRS) { const nk = c + dy * W + dx; if (a[nk] && seen[nk] < 0) { seen[nk] = k; q.push(nk); } } }
+        if (!best || q.length > best.length) best = q;
+      }
+      if (best && best.length >= 420) { t.fill(0); for (const k of best) t[k] = 1; const k = pick(best); start = { x: k % W, y: (k / W) | 0 }; }
+    }
+  }
+  if (!start) {
+    t.fill(0);
+    const rooms = [];
+    for (let tries = 0; tries < 220 && rooms.length < 10; tries++) {
+      const w = rr(5, 10), h = rr(4, 7), x = rr(1, W - w - 2), y = rr(1, H - h - 2);
+      if (rooms.some(r => x < r.x + r.w + 1 && x + w + 1 > r.x && y < r.y + r.h + 1 && y + h + 1 > r.y)) continue;
+      rooms.push({ x, y, w, h, cx: x + (w >> 1), cy: y + (h >> 1) });
+      for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) t[j * W + i] = 1;
+    }
+    rooms.sort((a, b) => a.cx - b.cx);
+    const dig = (a, b) => {
+      let x = a.cx, y = a.cy;
+      const hz = () => { while (x !== b.cx) { t[y * W + x] = 1; x += Math.sign(b.cx - x); } };
+      const vt = () => { while (y !== b.cy) { t[y * W + x] = 1; y += Math.sign(b.cy - y); } };
+      if (RNG() < 0.5) { hz(); vt(); } else { vt(); hz(); }
+    };
+    for (let i = 1; i < rooms.length; i++) dig(rooms[i - 1], rooms[i]);
+    for (let i = 0; i < 2; i++) dig(pick(rooms), pick(rooms));
+    // Doors where a corridor crosses a room's wall line.
+    const door = (x, y, horiz) => {
+      if (t[y * W + x] !== 1) return;
+      const ok = horiz ? t[y * W + x - 1] === 0 && t[y * W + x + 1] === 0 : t[(y - 1) * W + x] === 0 && t[(y + 1) * W + x] === 0;
+      if (ok && RNG() < 0.8) t[y * W + x] = 4;
+    };
+    for (const r of rooms) {
+      for (let x = r.x; x < r.x + r.w; x++) { door(x, r.y - 1, true); door(x, r.y + r.h, true); }
+      for (let y = r.y; y < r.y + r.h; y++) { door(r.x - 1, y, false); door(r.x + r.w, y, false); }
+    }
+    start = { x: rooms[0].cx, y: rooms[0].cy };
+  }
+  const { dist, order } = flood(m, start.x, start.y);
+  const ek = order[order.length - 1], end = { x: ek % W, y: (ek / W) | 0 };
+  t[start.y * W + start.x] = 3; m.start = start; m.end = null;
+  if (!last) { t[ek] = 2; m.end = end; }
+  const floors = order.filter(k => t[k] === 1 && k !== ek), far = floors.filter(k => dist[k] >= 7);
+  const used = new Set();
+  const spot = list => { for (let i = 0; i < 60 && list.length; i++) { const k = pick(list); if (!used.has(k)) { used.add(k); return { x: k % W, y: (k / W) | 0 }; } } return null; };
+  const count = Math.min(14, 8 + Math.floor(lv / 3)) + rnd(3);
+  for (let i = 0; i < count; i++) { const s = spot(far); if (s) spawn(m, s.x, s.y, lv + pick([-1,-1,0,0,0,1]), RNG() < 0.08 ? 1 : 0); }
+  if (last && !done) {
+    let boss;
+    if (site.lair) { boss = { id: G.uid++, t: BOSS, x: end.x, y: end.y, hp: MON[BOSS].hp, asleep: false, flee: 0, stun: 0, hunt: false, el: 0 }; m.mons.push(boss); }
+    else { boss = spawn(m, end.x, end.y, lv + 1, 2); boss.asleep = false; }
+    let ck = -1, cd = 1e9;
+    for (const k of floors) { const d = Math.hypot(k % W - end.x, ((k / W) | 0) - end.y); if (d < cd && !used.has(k)) { cd = d; ck = k; } }
+    if (ck >= 0) { used.add(ck); m.items.push({ x: ck % W, y: (ck / W) | 0, chest: 1 }); }
+  }
+  for (let i = rr(4, 6); i > 0; i--) { const s = spot(floors); if (s) m.items.push(Object.assign(s, randomItem(lv))); }
+  for (let i = rr(3, 4); i > 0; i--) { const s = spot(floors); if (s) m.items.push(Object.assign(s, { gold: rr(lv * 4, lv * 12) + 5 })); }
+  return m;
+}
+const world = () => GAL.stars[G.star].worlds[G.world];
+const siteOf = id => { const r = /^s(\d+)f(\d+)$/.exec(id); return r ? { i: +r[1], f: +r[2] } : null; };
+function genMap(id) {
+  const wd = world(), s = siteOf(id);
+  return seeded(G.seed + "|" + G.star + "|" + G.world + "|" + id, () => s ? genSite(wd, s.i, s.f) : genOut(wd));
+}
+// ================= State =================
+let G = null, L = null, GAL = null, VIS = new Uint8Array(0);
+const FX = [];
+const SAVE_KEY = "adventure-seed-save-v2", OLD_KEY = "hollow-king-save-v2";
+const need = lvl => 7 * lvl * lvl + 10;
+const idx = (x, y) => y * L.w + x;
+const inb = (x, y) => x >= 0 && y >= 0 && x < L.w && y < L.h;
+const tileAt = (x, y) => inb(x, y) ? L.tiles[idx(x, y)] : 0;
+const monAt = (x, y) => L.mons.find(m => m.x === x && m.y === y);
+const npcAt = (x, y) => L.npcs.find(n => n.x === x && n.y === y);
+const pet = () => G.p.pet && !G.p.pet.down ? G.p.pet : null;
+const petAt = (x, y) => { const q = pet(); return q && q.x === x && q.y === y ? q : null; };
+const race = () => RACES[G.p.race];
+const dkey = i => G.star + "." + G.world + "." + i;
+const isNight = () => L.out && G.time % 360 >= 240;
+const sight = () => (L.out ? (isNight() ? 6 : 10) : 8) + (race().sight || 0);
+const packSize = () => 30 + (pet() && PETS[pet().k].mule ? 12 : 0);
+const tough = m => m.t === BOSS || m.el === 2;
+const mname = m => (m.el === 2 ? "Alpha " : m.el === 1 ? "Savage " : "") + MON[m.t].name;
+const an = w => (/^[aeiou]/i.test(w) ? "an " : "a ") + w;
+const the = m => { const n = mname(m); return n.startsWith("The ") ? "the " + n.slice(4) : "the " + n; };
+const The = m => { const s = the(m); return s[0].toUpperCase() + s.slice(1); };
+function msg(t) { G.log.push(t); if (G.log.length > 40) G.log.shift(); }
+function fx(o) { FX.push(o); if (FX.length > 40) FX.shift(); }
+
+function passable(x, y) {
+  if (!inb(x, y)) return false;
+  const t = L.tiles[idx(x, y)];
+  if (t === 12) return !!(G.p.riding && VEH[G.p.veh.k].amph);
+  return !solid(t);
+}
+const petpass = (x, y) => inb(x, y) && !solid(L.tiles[idx(x, y)]);
+const mpass = (x, y) => { if (!inb(x, y)) return false; const t = L.tiles[idx(x, y)]; return !solid(t) && !safe(t); };
+function shift(e, x, y) { e.x = x; e.y = y; const k = idx(x, y); if (L.tiles[k] === 4) L.tiles[k] = 5; }
+
+function calc() {
+  const p = G.p, c = CLS[p.cls], r = race();
+  const g = { ac: 0, acc: 0, eva: 0, sp: 0, hp: 0, mp: 0, dmg: 0, str: 0, dex: 0, int: 0, vit: 0, regen: 0, mregen: 0 };
+  for (const s in p.eq) {
+    const e = p.eq[s]; if (!e) continue;
+    const it = ITEMS[e.id];
+    for (const k in it.b) g[k] += it.b[k];
+    if (it.ac) g.ac += it.ac + (e.e || 0);
+  }
+  const st = { str: p.st[0] + g.str, dex: p.st[1] + g.dex, int: p.st[2] + g.int, vit: p.st[3] + g.vit };
+  const we = p.eq.weapon, w = we ? ITEMS[we.id] : null;
+  const ranged = !!(w && w.ranged);
+  const bonus = Math.floor((ranged ? st.dex : w && w.fin ? Math.max(st.str, st.dex) : st.str) / (ranged ? 3 : 2)) + g.dmg + (we && we.e || 0);
+  let ac = g.ac + (r.ac || 0);
+  if (p.status.iron) ac = Math.round(ac * 1.5) + 10;
+  return {
+    st, ranged, ac, g,
+    maxHp: 10 + st.vit * 2 + p.lvl * c.hp + g.hp,
+    maxMp: 5 + st.int * 2 + p.lvl * c.mp + g.mp,
+    acc: p.lvl + st.dex * 0.5 + g.acc + (p.status.might ? 3 : 0),
+    eva: st.dex * 0.4 + p.lvl * 0.3 + g.eva + (r.eva || 0),
+    dmin: (w ? w.w[0] : 1) + bonus, dmax: (w ? w.w[1] : 3) + bonus,
+    sp: Math.floor(st.int / 3) + Math.floor(p.lvl / 3) + g.sp
+  };
+}
+
+function addItem(e) {
+  const p = G.p, it = ITEMS[e.id];
+  if (STACKS[it.kind]) {
+    const have = p.inv.find(x => x.id === e.id);
+    if (have) { have.n += e.n || 1; return true; }
+  }
+  if (p.inv.length >= packSize()) return false;
+  p.inv.push({ id: e.id, n: e.n || 1, e: e.e || 0, c: e.c });
+  return true;
+}
+
+function newGame(o) {
+  setTheme(o.theme);
+  GAL = genGalaxy(o.seed, o.size);
+  const c = CLS[o.cls], r = RACES[o.race];
+  G = { v: 2, theme: o.theme, seed: o.seed, size: o.size, star: GAL.start, world: 0, mapId: "o", maps: {}, turn: 0, time: 0, log: [], over: null, target: null, uid: 1, found: [], done: {}, visited: {}, bounty: null,
+    p: { name: o.name || "Nameless", race: o.race, cls: o.cls, lvl: 1, xp: 0, st: c.st.map((v, i) => v + r.st[i]), pts: 0, hp: 1, mp: 1, gold: 40, inv: [], eq: {}, status: {}, kills: 0, x: 0, y: 0, hpAcc: 0, mpAcc: 0, veh: null, riding: false, pet: null } };
+  for (const key of c.kit) {
+    const it = BYKEY[key], e = makeItem(it);
+    if (it.slot) G.p.eq[it.slot] = e; else G.p.inv.push(e);
+  }
+  const s = calc();
+  G.p.hp = s.maxHp; G.p.mp = s.maxMp;
+  if (o.pet >= 0) { G.p.pet = { k: o.pet, hp: 1, x: 0, y: 0, down: false }; G.p.pet.hp = petMax(); }
+  land(GAL.start, 0);
+  G.log = [];
+  msg(TH.intro);
+  if (L.town) msg("There is " + an(TH.town) + " here. Press T for a list of places to go.");
+}
+
+// ================= Moving between maps and worlds =================
+function land(star, wi) {
+  G.star = star; G.world = wi; G.maps = {}; G.visited[star] = 1;
+  enterMap("o");
+  const w = world();
+  msg("You land on " + w.name + ", " + an(TH.biome[w.biome].toLowerCase()) + ". Danger " + w.danger + ".");
+  if (GAL.stars[star].hop === 0) msg("This is the heart of the " + TH.galaxy + ". " + TH.lair + " is close.");
+}
+function enterMap(id, how) {
+  if (!G.maps[id]) G.maps[id] = genMap(id);
+  G.mapId = id; L = G.maps[id]; G.target = null;
+  const p = G.p;
+  let at = L.start;
+  if (how === "below" && L.end) at = L.end;
+  else if (how && how.site != null) at = L.sites[how.site];
+  p.x = at.x; p.y = at.y;
+  if (!L.out) p.riding = false;
+  const q = p.pet;
+  if (q) { if (q.down) { q.down = false; q.hp = Math.ceil(petMax() / 2); } petNear(); }
+  fov(); save();
+}
+function petNear() {
+  const q = G.p.pet, p = G.p;
+  q.x = p.x; q.y = p.y;
+  for (let r = 1; r <= 2; r++) for (let y = p.y - r; y <= p.y + r; y++) for (let x = p.x - r; x <= p.x + r; x++)
+    if (petpass(x, y) && !monAt(x, y) && !npcAt(x, y) && !(x === p.x && y === p.y)) { q.x = x; q.y = y; return; }
+}
+// Use whatever the player is standing on. Returns "galaxy" when the interface should open the star map.
+function useTile() {
+  const p = G.p, t = tileAt(p.x, p.y), s = siteOf(L.id), w = world();
+  if (t === 19) return "galaxy";
+  if (t === 18) {
+    const i = L.sites.findIndex(e => e.x === p.x && e.y === p.y);
+    if (p.riding) { p.riding = false; msg("You leave the " + TH.veh[p.veh.k] + " outside."); }
+    enterMap("s" + i + "f1");
+    msg("You enter " + w.sites[i].name + ", " + w.sites[i].floors + " floors deep." + (G.done[dkey(i)] ? " You have already cleared it." : ""));
+    return true;
+  }
+  if (t === 2) {
+    enterMap("s" + s.i + "f" + (s.f + 1));
+    msg("You go down to floor " + (s.f + 1) + " of " + w.sites[s.i].floors + ".");
+    if (w.sites[s.i].lair && s.f + 1 === w.sites[s.i].floors) msg("The air is still. The Hollow King is here.");
+    return true;
+  }
+  if (t === 3) {
+    if (s.f > 1) { enterMap("s" + s.i + "f" + (s.f - 1), "below"); msg("You climb back to floor " + (s.f - 1) + "."); }
+    else { enterMap("o", { site: s.i }); msg("You step back outside."); }
+    return true;
+  }
+  if (L.out) { msg("Nothing to use here. Press T for places to go."); return false; }
+  if (L.end && L.seen[idx(L.end.x, L.end.y)]) return travel((x, y) => x === L.end.x && y === L.end.y);
+  msg(L.end ? "You have not found the way down yet." : "This is the lowest floor. The way up is where you came in.");
+  return false;
+}
+function places() {
+  const out = [], w = world();
+  if (L.out) {
+    out.push({ name: "Your " + TH.ship, x: L.pad.x, y: L.pad.y });
+    if (L.town) out.push({ name: "The " + TH.town, x: L.town.x, y: L.town.y });
+    L.sites.forEach((s, i) => out.push({ name: w.sites[i].name + (G.done[dkey(i)] ? " (cleared)" : ""), x: s.x, y: s.y }));
+  } else {
+    out.push({ name: "The way up", x: L.start.x, y: L.start.y });
+    if (L.end && L.seen[idx(L.end.x, L.end.y)]) out.push({ name: "The way down", x: L.end.x, y: L.end.y });
+  }
+  return out;
+}
+
+// ================= Sight and paths =================
+function los(x0, y0, x1, y1) {
+  let dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1, err = dx - dy;
+  while (x0 !== x1 || y0 !== y1) {
+    const e2 = 2 * err;
+    if (e2 > -dy) { err -= dy; x0 += sx; }
+    if (e2 < dx) { err += dx; y0 += sy; }
+    if ((x0 !== x1 || y0 !== y1) && opaque(L.tiles[idx(x0, y0)])) return false;
+  }
+  return true;
+}
+// Reveal open ground and the walls that border it, not the solid rock behind.
+function revealMap() {
+  for (let y = 0; y < L.h; y++) for (let x = 0; x < L.w; x++) {
+    const k = idx(x, y);
+    if (L.seen[k]) continue;
+    let show = L.tiles[k] !== 0;
+    for (let i = 0; i < 8 && !show; i++) { const nx = x + DIRS[i][0], ny = y + DIRS[i][1]; if (inb(nx, ny) && L.tiles[idx(nx, ny)] !== 0) show = true; }
+    if (show) L.seen[k] = 2;
+  }
+}
+function fov() {
+  VIS = new Uint8Array(L.w * L.h);
+  const p = G.p, R = sight();
+  const cast = (tx, ty) => {
+    let x0 = p.x, y0 = p.y;
+    let dx = Math.abs(tx - x0), dy = Math.abs(ty - y0), sx = x0 < tx ? 1 : -1, sy = y0 < ty ? 1 : -1, err = dx - dy;
+    for (;;) {
+      if (!inb(x0, y0)) return;
+      const k = idx(x0, y0);
+      VIS[k] = 1; L.seen[k] = 1;
+      if ((opaque(L.tiles[k]) && !(x0 === p.x && y0 === p.y)) || (x0 === tx && y0 === ty)) return;
+      const e2 = 2 * err;
+      if (e2 > -dy) { err -= dy; x0 += sx; }
+      if (e2 < dx) { err += dx; y0 += sy; }
+    }
+  };
+  for (let i = -R; i <= R; i++) { cast(p.x + i, p.y - R); cast(p.x + i, p.y + R); cast(p.x - R, p.y + i); cast(p.x + R, p.y + i); }
+}
+const visibleMons = () => L.mons.filter(m => VIS[idx(m.x, m.y)]);
+// Foes that should interrupt travel and rest: awake in view, or close by.
+const threats = () => visibleMons().filter(m => !m.asleep || cheb(m, G.p) <= 3);
+
+function bfs(sx, sy, pass) {
+  const dist = new Int16Array(L.w * L.h).fill(-1), q = [idx(sx, sy)];
+  dist[q[0]] = 0;
+  for (let h = 0; h < q.length; h++) {
+    const k = q[h], x = k % L.w, y = (k / L.w) | 0;
+    for (const [dx, dy] of DIRS) {
+      const nx = x + dx, ny = y + dy;
+      if (!pass(nx, ny)) continue;
+      const nk = idx(nx, ny);
+      if (dist[nk] >= 0) continue;
+      dist[nk] = dist[k] + 1; q.push(nk);
+    }
+  }
+  return dist;
+}
+// First step from the player toward a goal test, through known tiles.
+function stepToward(isGoal) {
+  const p = G.p, n = L.w * L.h, dist = new Int16Array(n).fill(-1), prev = new Int32Array(n).fill(-1), q = [idx(p.x, p.y)];
+  dist[q[0]] = 0;
+  for (let h = 0; h < q.length; h++) {
+    const k = q[h], x = k % L.w, y = (k / L.w) | 0;
+    if (h > 0 && isGoal(x, y, k)) {
+      let c = k;
+      while (prev[c] !== q[0]) c = prev[c];
+      return [c % L.w - p.x, ((c / L.w) | 0) - p.y];
+    }
+    for (const [dx, dy] of DIRS) {
+      const nx = x + dx, ny = y + dy;
+      if (!passable(nx, ny)) continue;
+      const nk = idx(nx, ny);
+      if (dist[nk] >= 0 || !L.seen[nk] || npcAt(nx, ny)) continue;
+      dist[nk] = dist[k] + 1; prev[nk] = k; q.push(nk);
+    }
+  }
+  return null;
+}
+
+// ================= Combat =================
+function gainXp(n) {
+  const p = G.p;
+  if (p.lvl >= MAXLVL) return;
+  p.xp += Math.round(n * (race().xp || 1));
+  while (p.lvl < MAXLVL && p.xp >= need(p.lvl)) {
+    p.xp -= need(p.lvl); p.lvl++; p.pts++;
+    const gr = CLS[p.cls].grow;
+    p.st[gr[(p.lvl * 2) % 4]]++; p.st[gr[(p.lvl * 2 + 1) % 4]]++;
+    const s = calc();
+    p.hp = Math.min(s.maxHp, p.hp + Math.round(s.maxHp * 0.3));
+    p.mp = Math.min(s.maxMp, p.mp + Math.round(s.maxMp * 0.3));
+    msg("You reach level " + p.lvl + ". You have a point to spend on your sheet.");
+    fx({ k: "num", x: p.x, y: p.y, t: "Level " + p.lvl, c: "#f2d76b" });
+    ABIL[p.cls].forEach((a, i) => { if (a[0] === p.lvl) msg("You learn " + TH.abil[p.cls][i] + "."); });
+  }
+  if (p.lvl >= MAXLVL) p.xp = 0;
+}
+
+function killMon(m, byPet) {
+  const d = MON[m.t], p = G.p;
+  L.mons = L.mons.filter(x => x !== m);
+  if (G.target === m.id) G.target = null;
+  p.kills++;
+  msg(byPet ? "Your " + TH.pets[p.pet.k] + " kills " + the(m) + "." : "You kill " + the(m) + ".");
+  gainXp(d.xp * (m.el === 2 ? 4 : m.el === 1 ? 2 : 1));
+  if (m.stolen) { p.gold += m.stolen; msg("You take back " + m.stolen + " " + TH.coin + "."); }
+  if (m.el || Math.random() < 0.12) L.items.push(Object.assign({ x: m.x, y: m.y }, randomItem(L.lv + (m.el ? 2 : 0), m.el ? ["weapon","armour","ring","amulet","wand"] : null)));
+  else if (Math.random() < 0.4) L.items.push({ x: m.x, y: m.y, gold: rr(d.lv * 2, d.lv * 8) });
+  const s = siteOf(L.id);
+  if (m.t === BOSS) { G.over = "won"; msg(TH.win); clearSave(); }
+  else if (m.el === 2 && s) { G.done[dkey(s.i)] = 1; msg(world().sites[s.i].name + " is cleared."); }
+}
+function hurtMon(m, dmg, magic, byPet) {
+  const d = MON[m.t];
+  if (!magic) dmg = dmg * 60 / (60 + d.ac);
+  dmg = Math.max(1, Math.round(dmg));
+  m.hp -= dmg; m.asleep = false; m.hunt = true;
+  fx({ k: "num", x: m.x, y: m.y, t: "" + dmg, c: byPet ? "#9fd0ff" : "#ffffff" });
+  if (m.hp <= 0) killMon(m, byPet);
+  return dmg;
+}
+function weaponHit(m, mult, opt) {
+  const s = calc(), d = MON[m.t], o = opt || {}, p = G.p, r = race();
+  if (s.ranged && cheb(m, p) > 1) fx({ k: "line", x: p.x, y: p.y, x2: m.x, y2: m.y, c: "#f2e6b0" });
+  const hit = m.asleep || m.stun > 0 ? 1 : clamp(0.8 + (s.acc - d.eva) * 0.025, 0.25, 0.97);
+  if (Math.random() > hit) { msg("You miss " + the(m) + "."); fx({ k: "num", x: m.x, y: m.y, t: "miss", c: "#9a93a8" }); m.asleep = false; m.hunt = true; return 0; }
+  let dmg = rr(s.dmin, s.dmax) * mult;
+  if (o.sleepM && m.asleep) dmg = dmg / mult * o.sleepM;
+  if (p.status.might) dmg *= 1.25;
+  if (!s.ranged && r.melee) dmg *= r.melee;
+  if (p.riding && VEH[p.veh.k].ram && !s.ranged) dmg *= VEH[p.veh.k].ram;
+  const crit = Math.random() < 0.05 + s.st.dex * 0.003 + (r.crit || 0);
+  if (crit) dmg *= 2;
+  const done = hurtMon(m, dmg);
+  if (m.hp > 0) msg("You " + (crit ? "critically " : "") + "hit " + the(m) + " for " + done + ".");
+  if (o.leech) heal(Math.round(calc().maxHp * o.leech));
+  return done;
+}
+function spellDmg(mult) { const s = calc(); return rr(s.sp + 2, s.sp * 2 + 4) * mult * (G.p.status.might ? 1.25 : 1); }
+function spellHit(m, dmg, holy) {
+  const d = MON[m.t];
+  if (holy && d.U) dmg *= holy;
+  fx({ k: "line", x: G.p.x, y: G.p.y, x2: m.x, y2: m.y, c: holy ? "#fff3b0" : "#8fd0ff" });
+  const done = hurtMon(m, dmg, true);
+  if (m.hp > 0) msg(The(m) + " takes " + done + ".");
+}
+function heal(n) {
+  const s = calc(), p = G.p, was = p.hp;
+  p.hp = Math.min(s.maxHp, p.hp + n);
+  if (p.hp - was >= 3) fx({ k: "num", x: p.x, y: p.y, t: "+" + (p.hp - was), c: "#7ddc8a" });
+}
+
+function target(range) {
+  const p = G.p;
+  let t = L.mons.find(m => m.id === G.target);
+  if (t && (!VIS[idx(t.x, t.y)] || cheb(t, p) > range)) t = null;
+  if (!t) {
+    const c = visibleMons().filter(m => cheb(m, p) <= range).sort((a, b) => cheb(a, p) - cheb(b, p));
+    t = c[0] || null;
+  }
+  if (t) G.target = t.id;
+  return t;
+}
+function teleport(who) {
+  for (let t = 0; t < 600; t++) {
+    const x = rnd(L.w), y = rnd(L.h);
+    if (mpass(x, y) && tileAt(x, y) !== 4 && !monAt(x, y) && !npcAt(x, y) && !petAt(x, y) && !(G.p.x === x && G.p.y === y)) { who.x = x; who.y = y; return; }
+  }
+}
+// If the player is somehow on water without a vehicle, put them on the nearest dry tile.
+function ashore() {
+  const p = G.p;
+  if (tileAt(p.x, p.y) !== 12 || p.riding) return;
+  const dist = bfs(p.x, p.y, inb); let best = -1;
+  for (let k = 0; k < dist.length; k++) if (dist[k] >= 0 && !solid(L.tiles[k]) && (best < 0 || dist[k] < dist[best])) best = k;
+  if (best >= 0) { p.x = best % L.w; p.y = (best / L.w) | 0; }
+}
+
+function hurtPlayer(n, why) {
+  const p = G.p;
+  if (p.riding) {
+    const v = p.veh, d = VEH[v.k];
+    n = Math.max(1, Math.round(n * (d.armour || 1)));
+    v.hull -= n;
+    fx({ k: "num", x: p.x, y: p.y, t: "" + n, c: "#c9c9c9" });
+    if (v.hull <= 0) { v.hull = 0; p.riding = false; ashore(); msg("Your " + TH.veh[v.k] + " is wrecked. A " + TH.npc[3] + " can repair it."); }
+    return;
+  }
+  p.hp -= n;
+  fx({ k: "num", x: p.x, y: p.y, t: "" + n, c: "#ff6b5e" });
+  if (p.hp <= 0) { p.hp = 0; G.over = "dead"; G.cause = why; msg("You die."); clearSave(); }
+}
+
+// ================= Player actions =================
+function useAbility(i) {
+  const p = G.p, a = ABIL[p.cls][i];
+  if (!a || G.over) return false;
+  const [lvl, cost, type, o] = a, name = TH.abil[p.cls][i];
+  if (p.lvl < lvl) { msg(name + " is learned at level " + lvl + "."); return false; }
+  if (p.mp < cost) { msg("Not enough " + TH.mana.toLowerCase() + " for " + name + "."); return false; }
+  const adj = L.mons.filter(m => cheb(m, p) <= 1);
+  if (type === "melee") {
+    const t = adj.find(m => m.id === G.target) || adj[0];
+    if (!t) { msg("Nothing is in reach."); return false; }
+    msg("You use " + name + "."); weaponHit(t, o.m, o);
+  } else if (type === "cleave") {
+    if (!adj.length) { msg("Nothing is in reach."); return false; }
+    msg("You use " + name + "."); for (const m of adj) weaponHit(m, o.m);
+  } else if (type === "bolt") {
+    const t = target(6);
+    if (!t) { msg("You see no target."); return false; }
+    msg("You use " + name + ".");
+    const hits = o.aoe ? L.mons.filter(m => cheb(m, t) <= o.aoe && VIS[idx(m.x, m.y)]) : [t];
+    if (o.aoe) fx({ k: "burst", x: t.x, y: t.y, r: o.aoe, c: "#ffb347" });
+    for (const m of hits) spellHit(m, spellDmg(o.m), o.holy);
+  } else if (type === "shot") {
+    const t = target(6);
+    if (!t) { msg("You see no target."); return false; }
+    msg("You use " + name + "."); weaponHit(t, o.m);
+  } else if (type === "volley") {
+    const ts = visibleMons().filter(m => cheb(m, p) <= o.r);
+    if (!ts.length) { msg("You see no target."); return false; }
+    msg("You use " + name + "."); for (const m of ts) weaponHit(m, o.m);
+  } else if (type === "nova") {
+    const ts = visibleMons().filter(m => cheb(m, p) <= o.r);
+    if (!ts.length) { msg("Nothing is close enough."); return false; }
+    msg("You use " + name + ".");
+    fx({ k: "burst", x: p.x, y: p.y, r: o.r, c: o.stun ? "#9fe0ff" : "#fff3b0" });
+    for (const m of ts) { if (o.stun) m.stun = Math.max(m.stun, o.stun); spellHit(m, spellDmg(o.m), o.holy); }
+  } else if (type === "heal") {
+    const s = calc();
+    heal(Math.round(s.maxHp * o.f) + s.sp);
+    if (o.buff) Object.assign(p.status, o.buff);
+    msg("You use " + name + ".");
+  } else if (type === "buff") {
+    for (const k in o) if (k !== "map") p.status[k] = o[k];
+    if (o.map) revealMap();
+    msg("You use " + name + ".");
+  } else if (type === "fear") {
+    const ts = visibleMons();
+    if (!ts.length) { msg("You see nothing to drive off."); return false; }
+    msg("You use " + name + ".");
+    for (const m of ts) { if (!tough(m)) m.flee = o.t; if (MON[m.t].U) spellHit(m, spellDmg(o.holy), 1); }
+  } else if (type === "root") {
+    const t = target(6);
+    if (!t) { msg("You see no target."); return false; }
+    t.stun = Math.max(t.stun, o.t); msg(The(t) + " is held fast.");
+  } else if (type === "blink") {
+    const t = target(6);
+    if (!t) { msg("You see no target."); return false; }
+    const spots = DIRS.map(([dx, dy]) => ({ x: t.x + dx, y: t.y + dy })).filter(s => petpass(s.x, s.y) && !monAt(s.x, s.y) && !npcAt(s.x, s.y) && !petAt(s.x, s.y));
+    if (!spots.length) { msg("There is no room beside it."); return false; }
+    if (p.riding) p.riding = false;
+    Object.assign(p, pick(spots)); msg("You use " + name + "."); weaponHit(t, o.m);
+  }
+  p.mp -= cost;
+  endTurn();
+  return true;
+}
+
+function fire() {
+  const s = calc();
+  if (!s.ranged) { msg("You have no ranged weapon in hand."); return false; }
+  const t = target(6);
+  if (!t) { msg("You see no target."); return false; }
+  weaponHit(t, 1);
+  endTurn();
+  return true;
+}
+
+function pickup() {
+  const p = G.p;
+  let opened = false;
+  for (const it of L.items.filter(i => i.x === p.x && i.y === p.y)) {
+    if (it.chest) {
+      L.items.splice(L.items.indexOf(it), 1);
+      msg("You open the cache.");
+      L.items.push({ x: p.x, y: p.y, gold: rr(L.lv * 15, L.lv * 30) + 20 });
+      L.items.push(Object.assign({ x: p.x, y: p.y }, randomItem(L.lv + 3, ["weapon", "armour"])));
+      L.items.push(Object.assign({ x: p.x, y: p.y }, randomItem(L.lv + 2, ["ring", "amulet", "wand", "potion"])));
+      opened = true; continue;
+    }
+    if (it.gold) { const g = Math.round(it.gold * (race().luck || 1)); p.gold += g; msg("You pick up " + g + " " + TH.coin + "."); }
+    else if (addItem(it)) msg("You pick up " + label(it) + ".");
+    else { msg("Your pack is full."); continue; }
+    L.items.splice(L.items.indexOf(it), 1);
+  }
+  if (opened) pickup();
+}
+
+function move(dx, dy) {
+  if (G.over) return false;
+  const p = G.p;
+  if (dx === 0 && dy === 0) { endTurn(); return true; }
+  const nx = p.x + dx, ny = p.y + dy;
+  const m = monAt(nx, ny);
+  if (m) { G.target = m.id; weaponHit(m, 1); endTurn(); return true; }
+  const n = npcAt(nx, ny);
+  if (n) { openNpc(n); return false; }
+  if (!passable(nx, ny)) return false;
+  const q = petAt(nx, ny);
+  if (q) { q.x = p.x; q.y = p.y; }
+  shift(p, nx, ny);
+  pickup();
+  endTurn();
+  return true;
+}
+function mount() {
+  const p = G.p;
+  if (!p.veh) { msg("You have no vehicle. Any " + TH.town + " has " + an(TH.npc[3].toLowerCase()) + " who sells them."); return; }
+  const nm = TH.veh[p.veh.k];
+  if (p.riding) {
+    if (tileAt(p.x, p.y) === 12) { msg("You cannot get off here."); return; }
+    p.riding = false; msg("You get off the " + nm + ".");
+  } else {
+    if (!L.out) { msg("There is no room to ride in here."); return; }
+    if (p.veh.hull <= 0) { msg("Your " + nm + " is wrecked. A " + TH.npc[3] + " can repair it."); return; }
+    p.riding = true; msg("You board the " + nm + ".");
+  }
+}
+
+// Walk repeatedly toward a goal until something interesting happens.
+function travel(isGoal) {
+  let moved = false;
+  for (let i = 0; i < 400 && !G.over; i++) {
+    if (threats().length) { if (!moved) msg("Not with enemies this close."); break; }
+    const st = stepToward(isGoal);
+    if (!st) break;
+    const p = G.p, hp = p.hp, hull = p.veh ? p.veh.hull : 0, inView = visibleMons().length, map = L;
+    if (!move(st[0], st[1])) break;
+    moved = true;
+    if (L !== map || p.hp < hp || (p.veh && p.veh.hull < hull)) break;
+    if (visibleMons().length > inView) { msg("Something comes into view."); break; }
+  }
+  return moved;
+}
+function travelTo(x, y) {
+  if (G.p.x === x && G.p.y === y) { msg("You are already there."); return; }
+  if (!travel((a, b) => a === x && b === y) && !threats().length) msg("You cannot find a way there.");
+}
+function explore() {
+  const room = G.p.inv.length < packSize();
+  const loot = (x, y) => L.items.some(i => i.x === x && i.y === y && (L.seen[idx(x, y)] === 1 || i.known) && (room || i.gold || i.chest));
+  if (L.out) {
+    if (!travel(loot) && !threats().length) msg("Nothing in sight worth picking up. Press T for places to go.");
+    return;
+  }
+  const frontier = (x, y, k) => {
+    if (L.seen[k] === 2) return true;
+    if (loot(x, y)) return true;
+    for (const [dx, dy] of DIRS) { const nx = x + dx, ny = y + dy; if (inb(nx, ny) && !L.seen[idx(nx, ny)]) return true; }
+    return false;
+  };
+  if (!travel(frontier) && !threats().length) msg(L.end ? "Nothing left to explore. Press Enter for the way down." : "Nothing left to explore.");
+}
+function rest() {
+  const s = calc();
+  if (threats().length) { msg("You cannot rest with enemies this close."); return; }
+  let n = 0;
+  while (n < 200 && !G.over && (G.p.hp < s.maxHp || G.p.mp < s.maxMp) && !threats().length) { endTurn(); n++; }
+  msg(n ? "You rest for " + n + " turns." : "You are already rested.");
+}
+
+function useItem(i) {
+  const p = G.p, e = p.inv[i]; if (!e || G.over) return;
+  const it = ITEMS[e.id], s = calc();
+  const eff = (it.eff || "").split(":");
+  const wandDmg = () => rr(it.lv * 4 + 8, it.lv * 8 + 14) + s.sp;
+  const scrollDmg = () => rr(12 + L.lv * 5, 20 + L.lv * 9) + s.sp;
+  let spend = true;
+  if (it.kind === "wand") {
+    if (e.c <= 0) { msg("The " + it.name + " is spent."); return; }
+    if (eff[0] === "w_heal") { heal(Math.round(s.maxHp * 0.4)); msg("Warmth flows through you."); }
+    else {
+      const t = target(6);
+      if (!t) { msg("You see no target."); return; }
+      let k = eff[0];
+      if (k === "w_wonder") k = pick(["w_fire", "w_frost", "w_bolt", "w_sleep", "w_tele", "w_drain"]);
+      msg("You aim the " + it.name + ".");
+      if (k === "w_fire") { fx({ k: "burst", x: t.x, y: t.y, r: 1, c: "#ffb347" }); for (const m of L.mons.filter(m => cheb(m, t) <= 1)) spellHit(m, wandDmg()); }
+      else if (k === "w_frost") { t.stun = Math.max(t.stun, 3); spellHit(t, wandDmg() * 0.8); }
+      else if (k === "w_bolt") spellHit(t, wandDmg() * 1.4);
+      else if (k === "w_strike") spellHit(t, wandDmg());
+      else if (k === "w_slow") { t.stun = Math.max(t.stun, 6); msg(The(t) + " is held."); }
+      else if (k === "w_sleep") { if (!tough(t)) { t.asleep = true; msg(The(t) + " sleeps."); } else msg(The(t) + " shrugs it off."); }
+      else if (k === "w_tele") { if (!tough(t)) { teleport(t); t.hunt = false; msg(The(t) + " vanishes."); } else msg(The(t) + " does not move."); }
+      else if (k === "w_drain") { const d = wandDmg() * 0.8; spellHit(t, d); heal(Math.round(d / 2)); }
+    }
+    e.c--; spend = false;
+  } else if (it.kind === "gem") { msg("The " + it.name + " is no use here. A trader would pay for it."); return; }
+  else if (eff[0] === "heal") { heal(Math.round(s.maxHp * eff[1] / 100)); msg("You feel better."); }
+  else if (eff[0] === "mana") { p.mp = Math.min(s.maxMp, p.mp + Math.round(s.maxMp * eff[1] / 100)); msg("Your " + TH.mana.toLowerCase() + " returns."); }
+  else if (eff[0] === "full") { p.hp = s.maxHp; p.mp = s.maxMp; p.status.poison = 0; msg("You are fully restored."); }
+  else if (eff[0] === "stat") { p.st[+eff[1]]++; msg("Your " + STATS[+eff[1]] + " rises."); }
+  else if (eff[0] === "st") { p.status[eff[1]] = Math.max(p.status[eff[1]] || 0, +eff[2]); msg("You use the " + it.name + "."); }
+  else if (eff[0] === "cure") { p.status.poison = 0; msg("The poison leaves you."); }
+  else if (eff[0] === "xp") { msg("Memories that are not yours flood in."); gainXp(Math.round(need(p.lvl) * 0.6)); }
+  else if (eff[0] === "food") { heal(Math.round(s.maxHp * eff[1] / 100)); p.mp = Math.min(s.maxMp, p.mp + Math.round(s.maxMp * 0.1)); msg("You eat the " + it.name + "."); }
+  else if (eff[0] === "tele") { p.riding = false; teleport(p); petNear2(); msg("The world lurches."); }
+  else if (eff[0] === "blink") {
+    const spots = [];
+    for (let y = p.y - 5; y <= p.y + 5; y++) for (let x = p.x - 5; x <= p.x + 5; x++)
+      if (passable(x, y) && !monAt(x, y) && !npcAt(x, y) && !petAt(x, y) && VIS[idx(x, y)] && Math.max(Math.abs(x - p.x), Math.abs(y - p.y)) >= 3) spots.push({ x, y });
+    if (spots.length) { Object.assign(p, pick(spots)); msg("You hop away."); } else msg("The " + it.name + " fizzles.");
+  }
+  else if (eff[0] === "map") { revealMap(); msg("The shape of this place comes to you."); }
+  else if (eff[0] === "treasure") { for (const x of L.items) { x.known = 1; if (!L.seen[idx(x.x, x.y)]) L.seen[idx(x.x, x.y)] = 2; } msg("You sense everything of value here."); }
+  else if (eff[0] === "fire") { msg("Flame fills your sight."); for (const m of visibleMons()) spellHit(m, scrollDmg()); }
+  else if (eff[0] === "frost") { msg("The air freezes."); for (const m of visibleMons()) { m.stun = Math.max(m.stun, 3); spellHit(m, scrollDmg() * 0.7); } }
+  else if (eff[0] === "bolt") { const t = target(9); if (!t) { msg("You see no target."); return; } msg("A bolt strikes."); spellHit(t, scrollDmg() * 2); }
+  else if (eff[0] === "fear") { for (const m of visibleMons()) if (!tough(m)) m.flee = 10; msg("Your foes turn and run."); }
+  else if (eff[0] === "sleep") { for (const m of visibleMons()) if (!tough(m)) m.asleep = true; msg("Your foes slump."); }
+  else if (eff[0] === "banish") { const v = visibleMons().filter(m => !tough(m)); L.mons = L.mons.filter(m => !v.includes(m)); msg(v.length ? "They are gone." : "Nothing happens."); }
+  else if (eff[0] === "ench_w") { if (!p.eq.weapon) { msg("You hold no weapon."); return; } p.eq.weapon.e = (p.eq.weapon.e || 0) + 1; msg("Your weapon is better for it."); }
+  else if (eff[0] === "ench_a") { if (!p.eq.body) { msg("You wear no body armour."); return; } p.eq.body.e = (p.eq.body.e || 0) + 1; msg("Your armour is better for it."); }
+  if (spend) { e.n--; if (e.n <= 0) p.inv.splice(i, 1); }
+  endTurn();
+}
+function petNear2() { if (pet()) petNear(); }
+
+function equip(i) {
+  const p = G.p, e = p.inv[i]; if (!e) return;
+  const it = ITEMS[e.id];
+  let slot = it.slot;
+  if (slot === "ring") slot = !p.eq.ring1 ? "ring1" : !p.eq.ring2 ? "ring2" : "ring1";
+  p.inv.splice(i, 1);
+  if (p.eq[slot]) p.inv.push(p.eq[slot]);
+  p.eq[slot] = e;
+  msg("You equip " + label(e) + ".");
+  const s = calc(); p.hp = Math.min(p.hp, s.maxHp); p.mp = Math.min(p.mp, s.maxMp);
+  endTurn();
+}
+function unequip(slot) {
+  const p = G.p;
+  if (!p.eq[slot]) return;
+  if (p.inv.length >= packSize()) { msg("Your pack is full."); return; }
+  p.inv.push(p.eq[slot]); delete p.eq[slot];
+  const s = calc(); p.hp = Math.min(p.hp, s.maxHp); p.mp = Math.min(p.mp, s.maxMp);
+  endTurn();
+}
+function drop(i) {
+  const p = G.p, e = p.inv[i]; if (!e) return;
+  p.inv.splice(i, 1);
+  L.items.push(Object.assign({ x: p.x, y: p.y }, e));
+  msg("You drop " + label(e) + ".");
+}
+function spendPoint(k) { const p = G.p; if (p.pts > 0) { p.pts--; p.st[k]++; } }
+
+// ================= Trade, companions, vehicles, contracts =================
+const sellPrice = e => Math.max(1, Math.round(ITEMS[e.id].val * 0.35));
+function buy(npc, i) {
+  const p = G.p, e = npc.stock[i]; if (!e) return;
+  const cost = ITEMS[e.id].val;
+  if (p.gold < cost) { msg("You cannot afford that."); return; }
+  if (!addItem(e)) { msg("Your pack is full."); return; }
+  p.gold -= cost; npc.stock.splice(i, 1);
+  msg("You buy " + ITEMS[e.id].name + " for " + cost + " " + TH.coin + ".");
+}
+function sell(i) {
+  const p = G.p, e = p.inv[i]; if (!e) return;
+  const g = sellPrice(e);
+  p.gold += g; e.n--;
+  if (e.n <= 0) p.inv.splice(i, 1);
+  msg("You sell " + ITEMS[e.id].name + " for " + g + " " + TH.coin + ".");
+}
+function petMax() { return Math.round((14 + G.p.lvl * 7) * PETS[G.p.pet.k].hp); }
+const PETPRICE = 150;
+const petCare = () => { const q = G.p.pet; return q && (q.down || q.hp < petMax()) ? 15 + G.p.lvl * 5 : 0; };
+function buyPet(k) {
+  const p = G.p;
+  if (p.gold < PETPRICE) { msg("You cannot afford that."); return; }
+  p.gold -= PETPRICE;
+  if (p.pet) msg("You say goodbye to your " + TH.pets[p.pet.k] + ".");
+  p.pet = { k, hp: 1, x: p.x, y: p.y, down: false }; p.pet.hp = petMax(); petNear();
+  msg("The " + TH.pets[k] + " is yours.");
+}
+function carePet() {
+  const p = G.p, c = petCare();
+  if (!c) return;
+  if (p.gold < c) { msg("You cannot afford that."); return; }
+  p.gold -= c; const was = p.pet.down; p.pet.down = false; p.pet.hp = petMax(); if (was) petNear();
+  msg("Your " + TH.pets[p.pet.k] + " is back on its feet.");
+}
+const vehMax = k => Math.round(VEH[k].hull * (1 + G.p.lvl * 0.12));
+const vehFix = () => { const v = G.p.veh; return v ? Math.ceil((vehMax(v.k) - v.hull) * 0.5) : 0; };
+function buyVeh(k) {
+  const p = G.p;
+  if (p.gold < VEH[k].price) { msg("You cannot afford that."); return; }
+  p.gold -= VEH[k].price; p.veh = { k, hull: vehMax(k) }; p.riding = false;
+  msg("The " + TH.veh[k] + " is yours. Press V outdoors to ride it.");
+}
+function fixVeh() {
+  const p = G.p, c = vehFix();
+  if (c <= 0) return;
+  if (p.gold < c) { msg("You cannot afford that."); return; }
+  p.gold -= c; p.veh.hull = vehMax(p.veh.k); msg("Your " + TH.veh[p.veh.k] + " is as good as new.");
+}
+function bountyOffer() {
+  const w = world(), i = w.sites.findIndex((s, i) => !G.done[dkey(i)]);
+  return i < 0 ? null : { star: G.star, world: G.world, site: i, name: w.sites[i].name, on: w.name, reward: 40 + w.danger * 35, lv: w.danger };
+}
+const bountyDone = () => !!(G.bounty && G.done[G.bounty.star + "." + G.bounty.world + "." + G.bounty.site]);
+function takeBounty() { G.bounty = bountyOffer(); if (G.bounty) msg("Contract taken: clear " + G.bounty.name + "."); }
+function claimBounty() {
+  if (!bountyDone()) return;
+  const p = G.p, b = G.bounty, e = randomItem(b.lv + 3, ["weapon", "armour", "ring", "amulet"]);
+  p.gold += b.reward; G.bounty = null;
+  msg("You are paid " + b.reward + " " + TH.coin + " and handed " + label(e) + ".");
+  if (!addItem(e)) L.items.push(Object.assign({ x: p.x, y: p.y }, e));
+}
+
+// ================= Everyone else's turn =================
+function petTurn(dist) {
+  const q = pet(); if (!q) return;
+  const p = G.p, d = PETS[q.k];
+  if (d.medic && G.turn % 3 === 0) { const s = calc(); if (p.hp < s.maxHp) heal(Math.max(1, Math.round(s.maxHp * 0.04))); }
+  if (G.turn % 4 === 0 && q.hp < petMax()) q.hp++;
+  const free = (x, y) => petpass(x, y) && !monAt(x, y) && !npcAt(x, y) && !(x === p.x && y === p.y);
+  for (let a = d.fast ? 2 : 1; a > 0; a--) {
+    let t = null, bd = 99;
+    for (const m of L.mons) {
+      if ((m.asleep && m.id !== G.target) || !VIS[idx(m.x, m.y)] || cheb(m, p) > 7) continue;
+      const c = cheb(m, q); if (c < bd) { bd = c; t = m; }
+    }
+    if (t && (bd <= 1 || (d.ranged && bd <= 5 && los(q.x, q.y, t.x, t.y)))) {
+      if (bd > 1) fx({ k: "line", x: q.x, y: q.y, x2: t.x, y2: t.y, c: "#9fd0ff" });
+      if (Math.random() < 0.88) hurtMon(t, rr(Math.floor(1 + p.lvl * 0.8), Math.floor(3 + p.lvl * 1.9)) * d.d, false, true);
+      continue;
+    }
+    if (t) {
+      let best = null, bs = Math.hypot(t.x - q.x, t.y - q.y);
+      for (const [dx, dy] of DIRS) { const nx = q.x + dx, ny = q.y + dy; if (!free(nx, ny)) continue; const s = Math.hypot(t.x - nx, t.y - ny); if (s < bs) { bs = s; best = [nx, ny]; } }
+      if (best) shift(q, best[0], best[1]);
+      continue;
+    }
+    const c = cheb(q, p);
+    if (c > 10) { petNear(); continue; }
+    if (c > 1) {
+      let best = null, bd2 = dist[idx(q.x, q.y)]; if (bd2 < 0) bd2 = 9999;
+      for (const [dx, dy] of DIRS) { const nx = q.x + dx, ny = q.y + dy; if (!free(nx, ny)) continue; const v = dist[idx(nx, ny)]; if (v >= 0 && v < bd2) { bd2 = v; best = [nx, ny]; } }
+      if (best) shift(q, best[0], best[1]);
+    }
+  }
+}
+function monStep(m, dist, away) {
+  let best = null, bd = dist[idx(m.x, m.y)];
+  if (bd < 0) return;
+  for (const [dx, dy] of DIRS) {
+    const nx = m.x + dx, ny = m.y + dy;
+    if (!mpass(nx, ny) || monAt(nx, ny) || npcAt(nx, ny) || petAt(nx, ny) || (nx === G.p.x && ny === G.p.y)) continue;
+    const d = dist[idx(nx, ny)];
+    if (d < 0) continue;
+    if (away ? d > bd : d < bd) { bd = d; best = [nx, ny]; }
+  }
+  if (best) shift(m, best[0], best[1]);
+}
+const elM = m => m.el === 2 ? 1.2 : m.el === 1 ? 1.1 : 1;
+function monAttack(m, ranged) {
+  const d = MON[m.t], p = G.p, s = calc();
+  if (ranged) fx({ k: "line", x: m.x, y: m.y, x2: p.x, y2: p.y, c: d.C ? "#d58cff" : "#f2e6b0" });
+  const hit = clamp(0.8 + (d.acc - s.eva) * 0.025, 0.2, 0.95);
+  if (Math.random() > hit) { msg(The(m) + " misses you."); return; }
+  let dmg = rr(d.d[0], d.d[1]) * elM(m);
+  if (d.C && ranged) dmg = dmg * 60 / (60 + s.ac * 0.4);
+  else dmg = dmg * 60 / (60 + s.ac) * (ranged ? 0.8 : 1);
+  dmg = Math.max(1, Math.round(dmg));
+  msg(The(m) + (ranged ? (d.C ? " blasts" : " shoots") : " hits") + (p.riding ? " your " + TH.veh[p.veh.k] : " you") + " for " + dmg + ".");
+  const rode = p.riding;
+  hurtPlayer(dmg, mname(m));
+  if (G.over || ranged || rode) return;
+  const r = race();
+  if (d.P && Math.random() < 0.35 && !r.nopoison && !(r.tough && Math.random() < 0.5)) { p.status.poison = (p.status.poison || 0) + 5; msg("You are poisoned."); }
+  if (d.D && p.mp > 0) { p.mp = Math.max(0, p.mp - d.lv); msg("It drains your " + TH.mana.toLowerCase() + "."); }
+  if (d.T && p.gold > 0 && !m.stolen) {
+    const g = Math.min(p.gold, rr(d.lv * 6, d.lv * 16));
+    p.gold -= g; m.stolen = g; m.flee = 30; teleport(m);
+    msg(The(m) + " steals " + g + " " + TH.coin + " and vanishes.");
+  }
+}
+function monHitPet(m, q) {
+  const d = MON[m.t], p = G.p;
+  if (Math.random() > 0.8) return;
+  const dmg = Math.max(1, Math.round(rr(d.d[0], d.d[1]) * elM(m) * 60 / (60 + p.lvl * 4)));
+  q.hp -= dmg;
+  fx({ k: "num", x: q.x, y: q.y, t: "" + dmg, c: "#ffb08a" });
+  if (q.hp <= 0) { q.hp = 0; q.down = true; msg("Your " + TH.pets[q.k] + " is knocked out. It will recover when you move on."); }
+}
+function monAct(m, dist) {
+  const d = MON[m.t], p = G.p, c = cheb(m, p);
+  const sees = c <= 9 && los(m.x, m.y, p.x, p.y);
+  const wander = () => { const [dx, dy] = pick(DIRS), nx = m.x + dx, ny = m.y + dy; if (mpass(nx, ny) && !monAt(nx, ny) && !npcAt(nx, ny) && !petAt(nx, ny) && !(nx === p.x && ny === p.y)) shift(m, nx, ny); };
+  if (p.status.stealth && c > 1) { wander(); return; }
+  if (m.flee > 0) { m.flee--; monStep(m, dist, true); return; }
+  const q = pet();
+  if (q && cheb(m, q) <= 1 && (c > 1 || Math.random() < (PETS[q.k].taunt ? 0.6 : 0.2))) { m.hunt = true; monHitPet(m, q); return; }
+  if (c <= 1) { monAttack(m, false); return; }
+  if ((d.R || d.C) && sees && c <= 6 && Math.random() < 0.7) { monAttack(m, true); return; }
+  if (sees) m.hunt = true;
+  const dm = dist[idx(m.x, m.y)];
+  if (m.hunt && dm >= 0 && dm < 30) monStep(m, dist, false);
+  else if (m.hunt && dm < 0) m.hunt = false;
+  else if (L.out && Math.random() < 0.3) wander();
+}
+function endTurn() {
+  if (G.over) return;
+  const p = G.p, st = p.status;
+  G.turn++; G.time++;
+  fov();
+  const dist = bfs(p.x, p.y, mpass);
+  petTurn(bfs(p.x, p.y, petpass));
+  let skip = false;
+  if (st.haste > 0 && p.riding) skip = G.turn % 3 !== 0;
+  else if (st.haste > 0 || p.riding) skip = G.turn % 2 === 0;
+  if (!skip && !G.over) {
+    for (const m of L.mons.slice()) {
+      if (G.over) break;
+      if (!L.mons.includes(m)) continue;
+      const d = MON[m.t], mx = monMax(m);
+      if (d.G && m.hp < mx) m.hp = Math.min(mx, m.hp + Math.ceil(mx * (d.B ? 0.004 : 0.02)));
+      if (m.stun > 0) { m.stun--; continue; }
+      if (m.asleep) {
+        const c = cheb(m, p);
+        if (!st.stealth && ((c <= 2) || (c <= 7 && Math.random() < 0.25 && los(m.x, m.y, p.x, p.y)))) { m.asleep = false; m.hunt = true; }
+        continue;
+      }
+      const acts = d.F ? 2 : d.S ? (G.turn % 3 === 0 ? 0 : 1) : 1;
+      for (let i = 0; i < acts && !G.over; i++) monAct(m, dist);
+    }
+  }
+  if (G.over) return;
+  const s = calc();
+  if (st.poison > 0) { st.poison--; if (!p.riding) { p.hp -= 1 + Math.floor(L.lv / 4); if (p.hp <= 0) { p.hp = 0; G.over = "dead"; G.cause = "poison"; msg("You die."); clearSave(); return; } } }
+  for (const k of ["might", "iron", "haste", "regen", "stealth"]) if (st[k] > 0) { st[k]--; if (!st[k]) msg({ might: "Your strength settles.", iron: "Your guard drops back to normal.", haste: "Time catches up with you.", regen: "The warmth fades.", stealth: "You are seen again." }[k]); }
+  p.hpAcc += s.maxHp / 220 + (st.regen ? s.maxHp * 0.03 : 0) + s.g.regen * s.maxHp * 0.01;
+  p.mpAcc += s.maxMp / 110 + s.g.mregen * s.maxMp * 0.012;
+  if (p.hpAcc >= 1) { const n = Math.floor(p.hpAcc); p.hpAcc -= n; p.hp = Math.min(s.maxHp, p.hp + n); }
+  if (p.mpAcc >= 1) { const n = Math.floor(p.mpAcc); p.mpAcc -= n; p.mp = Math.min(s.maxMp, p.mp + n); }
+  if (L.out && G.time % 360 === 240) msg("Night falls. You cannot see as far.");
+  if (L.out && G.time % 360 === 0) msg("The sun comes up.");
+  fov();
+}
+
+// ================= Saving =================
+// Maps are stored as strings, one character per tile.
+const pack = a => { let s = ""; for (let i = 0; i < a.length; i++) s += String.fromCharCode(48 + a[i]); return s; };
+const unpack = s => { const a = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) a[i] = s.charCodeAt(i) - 48; return a; };
+function save() {
+  try {
+    if (!G || G.over) return;
+    const o = Object.assign({}, G, { maps: {} });
+    for (const k in G.maps) o.maps[k] = Object.assign({}, G.maps[k], { tiles: pack(G.maps[k].tiles), seen: pack(G.maps[k].seen) });
+    localStorage.setItem(SAVE_KEY, JSON.stringify(o));
+  } catch (e) {}
+}
+function clearSave() { try { localStorage.removeItem(SAVE_KEY); localStorage.removeItem(OLD_KEY); } catch (e) {} }
+function loadSave() {
+  try { const d = JSON.parse(localStorage.getItem(SAVE_KEY) || localStorage.getItem(OLD_KEY) || "null"); return d && d.v === 2 && d.p && d.maps && THEMES[d.theme] ? d : null; } catch (e) { return null; }
+}
+function resume(d) {
+  for (const k in d.maps) { d.maps[k].tiles = unpack(d.maps[k].tiles); d.maps[k].seen = unpack(d.maps[k].seen); }
+  setTheme(d.theme);
+  GAL = genGalaxy(d.seed, d.size);
+  G = d; L = G.maps[G.mapId];
+  fov();
+}
+let openNpc = () => {};
+// ================= Pixel art =================
+// 12 by 12 sprites. k outline, a main colour, b shade, c highlight, w white, r red, y gold, s skin, h hair.
+const SPR = {
+  P: ["...kkkkkk...","..khhhhhhk..","..khsssshk..","..kskssksk..","..kssssssk..","...kkaakk...","..kaaaaaak..",".ksaaaaaask.",".kskabbaksk.","...kaaaak...","...kbk.kbk..","...kkk.kkk.."],
+  h: ["...kkkkkk...","..kaaaaaak..","..kaaaaaak..","..kawaawak..","..kaaaaaak..","...kkbbkk...","..kbbbbbbk..",".kabbbbbbak.",".kakbbbbkak.","...kbbbbk...","...kak.kak..","...kkk.kkk.."],
+  G: ["...kkkkkk...","..kaaaaaak..","..kawaawak..","..kaaaaaak..",".kkkabbakkk.","kaaaaaaaaaak","kaakaaaakaak","kaakaaaakaak","kcckabbakcck",".kk.kaak.kk.","..kaakkaak..","..kkkkkkkk.."],
+  r: ["............","............","............","............","..kk........",".kaak..kkk..",".kaaakkaaak.","kawaaaaaaak.","kaaaaaaaaakk",".kkaaaaaak.k","...kk..kk..k","..........k."],
+  b: ["............","k..........k","kk..k..k..kk","kak.kkkk.kak","kaakaaaakaak","kaaawaawaaak",".kaaaaaaaak.",".ka.kaak.ak.",".k...kk...k.","............","............","............"],
+  s: ["............","............","............","....kkkk....","...kaccak...","..kaacaaak..",".kaawaawaak.",".kaaaaaaaak.","kaaaaaaaaaak","kabaaaaaabak",".kkkkkkkkkk.","............"],
+  i: ["............","............","k..k....k..k",".k.k.kk.k.k.","..kkkaakkk..","kkkaaaaaakkk","..kawaawak..","kkkaaaaaakkk","..kkaaaakk..",".k.k.kk.k.k.","k..k....k..k","............"],
+  g: ["....kkkk....","..kkcccckk..",".kcccccccck.",".kcckcckccck",".kcckcckccck",".kcccccccck.",".kcccccccck.",".kaaaaaaaak.",".kaaaaaaaak.",".kakaakaakak",".kk.kk.kk.k.","............"],
+  k: ["....kkkk....","...kwwwwk...","...kkwwkk...","...kwwwwk...","....kwwk....","..kkkaakkk..",".kwkawwakwk.",".kw.kaak.wk.",".k..kwwk..k.","....kwwk....","...kwk.kwk..","...kk..kk..."],
+  d: ["............","............",".kk.........","kaak......k.","kawakkkkkkak","kaaaaaaaaaak",".kkaaaaaaaak","..kaaaaaaak.","..kakkkkkak.","..kak...kak.","..kk....kk..","............"],
+  l: ["............",".....kkkk...","....kaaaak..","....kawaak..",".....kkaak..","..kkkkaak...",".kaaaaak....","kaakkkk.....","kaak..kkkk..",".kaakkaaaak.","..kaaaakkk..","...kkkk....."],
+  D: ["..k......kk.",".kak....kaak",".kaak..kawak","kaaak.kaaakk","kaaaakaaak..","kaaaaaaaak..",".kaaaaaaak..","..kaaaaaaak.","..kaakkaaak.","..kak..kaakk","..kk...kkaak",".........kk."],
+  m: [".....kk.....","....kyyk....","..kkkkkkkk..","..kaaaaaak..","..karaarak..","..kaaaaaak..",".kkkkkkkkkk.","kakabbbbakak","kakabbbbakak",".k.kaaaak.k.","...kak.kak..","..kkkk.kkkk."],
+  e: ["............","...kkkkkk...","..kaaaaaak..",".kaawwwwaak.",".kawwkkwwak.",".kawwkkwwak.",".kaawwwwaak.","..kaaaaaak..",".k.kkkkkk.k.",".k.k.kk.k.k.","k..k.k..k..k","............"],
+  "!": ["............","....kkkk....","....kwwk....",".....kk.....","....kcck....","...kcaaak...","..kcaaaaak..","..kaaaaaak..","..kaaaaabk..","...kaaabk...","....kkkk....","............"],
+  "?": ["............","..kkkkkkkk..",".kaaaaaaaak.","..kkaaaakk..","...kakkak...","...kaaaak...","...kakkak...","...kaaaak...","..kkaaaakk..",".kaaaaaaaak.","..kkkkkkkk..","............"],
+  ")": ["..........kk",".........kck","........kcak",".......kcak.","......kcak..",".....kcak...",".k..kcak....",".kkkcak.....","..kyyk......",".kykyk......","kyk.kkk.....","kk.........."],
+  "[": ["............",".kkk....kkk.","kaaakkkkaaak","kaaaaaaaaaak",".kkaaccaakk.","..kaaccaak..","..kaaaaaak..","..kaaaaaak..","..kabbbbak..","..kaaaaaak..","...kkkkkk...","............"],
+  "=": ["............","............","....krrk....","...kkkkkk...","..kyyyyyyk..",".kyykkkkyyk.",".kyk....kyk.",".kyk....kyk.",".kyykkkkyyk.","..kyyyyyyk..","...kkkkkk...","............"],
+  '"': ["..kk....kk..",".ky......yk.",".ky......yk.","..ky....yk..","...ky..yk...","....kyyk....","...kkaakk...","..kaaccaak..","..kaacaaak..","...kaaaak...","....kkkk....","............"],
+  "/": [".........k..","........kck.",".......kcwck","........kck.",".......kak..","......kak...",".....kak....","....kak.....","...kak......","..kak.......",".kak........",".kk........."],
+  "*": ["............","............","...kkkkkk...","..kccccaak..",".kccaaaaaak.",".kcaaaaaabk.","..kaaaaabk..","...kaaabk...","....kabk....",".....kk.....","............","............"],
+  "%": ["............","............","............","...kkkkkk...","..kccccaak..",".kcaaaaaaak.",".kaaaaaaaak.",".kaaaaaabbk.",".kabbbbbbbk.","..kkkkkkkk..","............","............"],
+  "$": ["............","............","............","....kkkk....","...kyccyk...","...kyyyyk...",".kkkkyykkkk.","kyccykkyccyk","kyyyykkyyyyk",".kkkk..kkkk.","............","............"],
+  C: ["............","............","..kkkkkkkk..",".kaaaaaaaak.",".kaccccccak.",".kkkkyykkkk.",".kaaayyaaak.",".kaaaaaaaak.",".kabbbbbbak.",".kkkkkkkkkk.","............","............"],
+  V0: ["............","............","............","............","............",".kk.......k.","kaakkkkkkkak","kaaaaaaaaaak",".kaaaaaaaak.",".kbk.kk.kbk.",".kbk....kbk.",".kk......kk."],
+  V1: ["............","............","............","............","..kkkkkkkk..",".kaaaaaaaak.","kaacaacaacak","kaaaaaaaaaak","kbbbbbbbbbbk",".kkk.kk.kkk.",".kwk.kk.kwk.","..k......k.."],
+  V2: ["............","............","............","............","............","............","kk........kk","kakkkkkkkkak",".kaaaaaaaak.",".kbaaaaaabk.","..kbbbbbbk..","...kkkkkk..."],
+  S: [".....kk.....","....kcck....","....kcck....","...kcwwck...","...kcwwck...","..kaaaaaak..","..kaaaaaak..",".kaakaakaak.","kaak.kk.kaak","kkk.kyyk.kkk","....kyyk....",".....kk....."]
+};
+// ================= Interface =================
+if (typeof document !== "undefined") {
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+  const canvas = $("map"), ctx = canvas.getContext("2d");
+  const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const newSeed = () => { const a = ["amber","iron","quiet","ninth","hollow","salt","ember","glass","pale","storm"], b = ["crown","tide","lantern","orbit","harbor","thorn","signal","ash","comet","vault"]; return a[Math.floor(Math.random() * a.length)] + "-" + b[Math.floor(Math.random() * b.length)] + "-" + (100 + Math.floor(Math.random() * 900)); };
+  const setup = { theme: "fantasy", seed: newSeed(), size: "medium", race: 0, cls: 0, pet: 0, name: "" };
+  let css = {}, view = { camX: 0, camY: 0, S: 24 }, modal = null, shopTab = "buy", frameN = 0, showMini = true, galSel = 0, looping = false, moving = false;
+
+  function readCss() {
+    const cs = getComputedStyle(document.documentElement);
+    for (const k of ["ink", "muted", "accent", "hp"]) css[k] = cs.getPropertyValue("--" + k).trim();
+  }
+  function applySetting(key) { document.documentElement.dataset.setting = key; $("sub").textContent = THEMES[key].sub; readCss(); }
+
+  // ---------- Sprites and tiles, drawn once and cached ----------
+  const cache = new Map();
+  function shade(hex, f) {
+    const n = parseInt(hex.slice(1), 16), t = f < 0 ? 0 : 255, a = Math.abs(f);
+    const ch = v => Math.round(v + (t - v) * a);
+    return "rgb(" + ch(n >> 16) + "," + ch(n >> 8 & 255) + "," + ch(n & 255) + ")";
+  }
+  function blank(S) { const c = document.createElement("canvas"); c.width = c.height = S; return c; }
+  function sprite(key, base, S, skin, hair) {
+    const id = "s|" + key + "|" + base + "|" + S + "|" + (skin || "") + (hair || "");
+    let c = cache.get(id);
+    if (c) return c;
+    c = blank(S);
+    const g = c.getContext("2d"), col = { k: "#15131a", w: "#f4f1ea", r: "#e0483c", y: "#e9c046", a: base, b: shade(base, -0.35), c: shade(base, 0.4), s: skin || "#e8b88a", h: hair || "#5a3a1e" };
+    SPR[key].forEach((row, y) => { for (let x = 0; x < 12; x++) { const ch = row[x]; if (ch === ".") continue; const x0 = Math.round(x * S / 12), y0 = Math.round(y * S / 12); g.fillStyle = col[ch]; g.fillRect(x0, y0, Math.round((x + 1) * S / 12) - x0, Math.round((y + 1) * S / 12) - y0); } });
+    cache.set(id, c);
+    return c;
+  }
+  const OUT = [
+    { g: "#3c7a38", g2: "#4f9147", tree: "#1e5c2c", trunk: "#5a3d22", water: "#2a5ea6", water2: "#5b96dc", rock: "#70707a", rock2: "#a3a3b0", road: "#a08a62", style: 0 },
+    { g: "#c9a45c", g2: "#dcbb78", tree: "#4f8a3c", trunk: "#4f8a3c", water: "#2f7f9e", water2: "#63b7d2", rock: "#9a6a45", rock2: "#c59a6e", road: "#e3cc98", style: 1 },
+    { g: "#cfdbe6", g2: "#eef4f8", tree: "#2c5f4c", trunk: "#4a3526", water: "#6fa8d0", water2: "#b4dbf2", rock: "#7c8794", rock2: "#f2f6fa", road: "#a9b6c2", style: 2 },
+    { g: "#3a3034", g2: "#4d3f44", tree: "#1a1416", trunk: "#1a1416", water: "#d2501e", water2: "#f6a13c", rock: "#2a2226", rock2: "#62525a", road: "#6f5f62", style: 3 },
+    { g: "#2f5a3c", g2: "#3f7049", tree: "#173f28", trunk: "#3d2d1c", water: "#27564e", water2: "#4c8a7a", rock: "#56605a", rock2: "#86928a", road: "#7b7350", style: 0 },
+    { g: "#7d7a80", g2: "#939097", tree: "#5c5960", trunk: "#5c5960", water: "#2e2c33", water2: "#45434b", rock: "#5a5860", rock2: "#aaa7b1", road: "#a8a5ac", style: 5 }
+  ];
+  const INP = {
+    c: { wall: "#4f4338", wall2: "#6a5a4b", floor: "#2d2621", floor2: "#3b322b", style: "cave" },
+    l: { wall: "#6b5a2c", wall2: "#9a8340", floor: "#262014", floor2: "#352d1b", style: "brick", glow: "#e9c046" },
+    fantasy: { wall: "#5b5568", wall2: "#7d7690", floor: "#2c2838", floor2: "#383346", style: "brick", door: "#7a5230", roof: "#8f5d2f", plaza: "#8d8676" },
+    scifi: { wall: "#3d5266", wall2: "#6384a0", floor: "#222e3a", floor2: "#2e3d4a", style: "panel", glow: "#4fd0e0", door: "#7f97aa", roof: "#7f9db5", plaza: "#6c7684" },
+    wasteland: { wall: "#5c6152", wall2: "#7d846f", floor: "#2c2e27", floor2: "#393c33", style: "concrete", door: "#8a5a3a", roof: "#8a6c4c", plaza: "#7d7767" }
+  };
+  function tileImg(t, v, so, S) {
+    const pal = L.pal, f = (t === 12 && !still) ? frameN & 1 : 0;
+    const id = "t|" + G.theme + "|" + pal + "|" + t + "|" + v + "|" + so + "|" + f + "|" + S;
+    let c = cache.get(id);
+    if (c) return c;
+    c = blank(S);
+    const g = c.getContext("2d"), u = S / 12, TP = INP[G.theme];
+    const R = (x, y, w, h, col) => { const x0 = Math.round(x * u), y0 = Math.round(y * u); g.fillStyle = col; g.fillRect(x0, y0, Math.round((x + w) * u) - x0, Math.round((y + h) * u) - y0); };
+    const dots = (col, n) => { for (let i = 0; i < n; i++) R((v * 5 + i * 7 + t) % 11, (v * 3 + i * 5 + 2) % 11, 1, 1, col); };
+    if (t >= 10) {
+      const P = OUT[pal];
+      R(0, 0, 12, 12, P.g);
+      if (t === 10) dots(P.g2, 2);
+      else if (t === 15) { dots(P.g2, 5); R((v * 3 + 2) % 9, (v * 4 + 3) % 9, 2, 1, shade(P.g, -0.18)); }
+      else if (t === 14) { R(0, 0, 12, 12, P.road); dots(shade(P.road, -0.2), 3); dots(shade(P.road, 0.2), 1); }
+      else if (t === 11) {
+        dots(P.g2, 1);
+        const T = P.tree, hi = shade(T, 0.22), ox = v & 1;
+        if (P.style === 1) { R(5, 2, 2, 9, T); R(2 + ox, 4, 2, 3, T); R(2 + ox, 6, 4, 1, T); R(8, 3, 2, 3, T); R(7, 5, 3, 1, T); R(5, 2, 1, 9, hi); }
+        else if (P.style === 2) { R(5, 9, 2, 3, P.trunk); R(5, 1, 2, 2, T); R(4, 3, 4, 2, T); R(3, 5, 6, 2, T); R(2, 7, 8, 2, T); R(5, 1, 2, 1, P.g2); R(4, 3, 2, 1, P.g2); R(3, 5, 3, 1, P.g2); }
+        else if (P.style === 3) { R(5, 4, 2, 8, T); R(3, 3, 2, 1, T); R(2, 2, 1, 1, T); R(7, 5, 2, 1, T); R(9, 4, 1, 1, T); R(4, 6, 1, 1, T); R(6 + ox, 1, 1, 3, T); }
+        else if (P.style === 5) { R(3, 5, 7, 5, T); R(4, 4, 5, 1, T); R(4, 5, 3, 1, P.rock2); R(3, 10, 7, 1, shade(P.g, -0.3)); }
+        else { R(5, 8, 2, 4, P.trunk); R(3, 1, 6, 2, T); R(2, 3, 8, 4, T); R(3, 7, 6, 1, T); R(4 - ox, 2, 3, 2, hi); R(7, 5, 2, 1, shade(T, -0.3)); }
+      }
+      else if (t === 12) { R(0, 0, 12, 12, P.water); if (P.style === 5) { R(0, 0, 12, 1, shade(P.water, -0.4)); R(0, 0, 1, 12, shade(P.water, -0.4)); } else { R((1 + v * 3 + f * 2) % 9, 3, 3, 1, P.water2); R((6 + v * 2 + f * 3) % 9, 8, 3, 1, P.water2); } }
+      else if (t === 13) { const D = shade(P.rock, -0.25); R(1, 9, 10, 3, D); R(2, 7, 8, 2, P.rock); R(3, 5, 6, 2, P.rock); R(4, 3, 4, 2, P.rock); R(5 + (v & 1), 1, 2, 2, P.rock); R(5 + (v & 1), 1, 1, 2, P.rock2); R(4, 3, 2, 2, P.rock2); R(3, 5, 2, 2, P.rock2); R(8, 7, 2, 2, D); }
+      else if (t === 16) { R(0, 0, 12, 12, TP.roof); R(0, 0, 12, 1, shade(TP.roof, 0.3)); R(0, 4, 12, 1, shade(TP.roof, -0.2)); R(0, 8, 12, 1, shade(TP.roof, -0.2)); R(0, 10, 12, 2, shade(TP.roof, -0.45)); }
+      else if (t === 17) { R(0, 0, 12, 12, TP.plaza); R(0, 0, 12, 1, shade(TP.plaza, -0.15)); R(0, 6, 12, 1, shade(TP.plaza, -0.15)); R(v & 1 ? 3 : 8, 0, 1, 6, shade(TP.plaza, -0.15)); R(v & 1 ? 8 : 3, 6, 1, 6, shade(TP.plaza, -0.15)); }
+      else if (t === 18) { R(1, 2, 10, 10, P.rock); R(1, 2, 10, 1, P.rock2); R(3, 4, 6, 8, "#08080c"); R(4, 3, 4, 1, "#08080c"); R(5, 10, 2, 1, P.rock2); R(4, 11, 4, 1, P.rock2); }
+      else if (t === 19) { R(0, 0, 12, 12, "#4b4b57"); R(0, 0, 12, 1, "#e9c046"); R(0, 11, 12, 1, "#e9c046"); R(0, 0, 1, 12, "#e9c046"); R(11, 0, 1, 12, "#e9c046"); R(3, 3, 6, 6, "#3a3a44"); }
+    } else {
+      const P = pal === "s" ? TP : INP[pal];
+      if (t === 0) {
+        R(0, 0, 12, 12, P.wall);
+        const D = shade(P.wall, -0.3);
+        if (P.style === "cave") { R((v * 3) % 8, 2, 4, 3, P.wall2); R((v * 5 + 3) % 8, 7, 3, 2, P.wall2); R((v * 2 + 6) % 9, 5, 2, 1, D); R(v + 1, 10, 3, 1, D); }
+        else if (P.style === "panel") { R(0, 0, 12, 1, P.wall2); R(0, 0, 1, 12, P.wall2); R(11, 0, 1, 12, D); R(2, 3, 8, 1, D); R(2, 7, 8, 1, D); if (v === 0) R(8, 5, 2, 1, P.glow); }
+        else if (P.style === "concrete") { R(0, 0, 12, 1, P.wall2); R(0, 6, 12, 1, D); if (v & 1) { R(3, 1, 1, 3, D); R(4, 4, 1, 2, D); } else R(7, 8, 3, 2, shade(P.wall, -0.15)); if (v === 2) R(2, 9, 2, 1, "#6f7a3a"); }
+        else { R(0, 0, 12, 1, P.wall2); R(0, 4, 12, 1, D); R(0, 8, 12, 1, D); R(3, 1, 1, 3, D); R(9, 1, 1, 3, D); R(6, 5, 1, 3, D); R(0, 5, 1, 3, D); R(3, 9, 1, 3, D); R(9, 9, 1, 3, D); if (P.glow && v === 0) R(5, 2, 2, 1, P.glow); }
+        if (so) { R(0, 9, 12, 3, shade(P.wall, -0.5)); R(0, 9, 12, 1, shade(P.wall, -0.15)); }
+      } else {
+        R(0, 0, 12, 12, P.floor);
+        if (P.style === "cave") dots(P.floor2, 3);
+        else { R(0, 0, 12, 1, P.floor2); R(0, 0, 1, 12, P.floor2); if (v === 1) R(5, 6, 2, 1, P.floor2); if (v === 3) R(8, 3, 1, 2, shade(P.floor, -0.3)); }
+        const door = P.door || "#7a5230";
+        if (t === 2) { R(2, 2, 8, 9, "#050508"); R(2, 2, 8, 2, shade(P.wall2, 0.1)); R(2, 4, 6, 2, P.wall2); R(2, 6, 4, 2, P.wall); R(2, 8, 2, 2, shade(P.wall, -0.3)); }
+        else if (t === 3) { R(2, 2, 8, 9, shade(P.wall, -0.2)); R(2, 8, 8, 3, shade(P.wall2, 0.25)); R(4, 5, 6, 3, P.wall2); R(6, 2, 4, 3, P.wall); R(2, 2, 2, 1, "#e9c046"); }
+        else if (t === 4) { R(1, 0, 10, 12, door); R(1, 0, 10, 1, shade(door, 0.3)); R(6, 0, 1, 12, shade(door, -0.3)); R(8, 6, 1, 1, "#e9c046"); R(0, 0, 1, 12, P.wall2); R(11, 0, 1, 12, P.wall2); }
+        else if (t === 5) { R(0, 0, 2, 12, door); R(10, 0, 2, 12, door); R(0, 0, 1, 12, P.wall2); R(11, 0, 1, 12, P.wall2); }
+      }
+    }
+    cache.set(id, c);
+    return c;
+  }
+  const ITEMCOL = { "?": "#e8dcb8", ")": "#c9ccd6", "[": "#8a93a8", "=": "#e9c046", '"': "#5bc0be", "/": "#b07cd8", "*": "#5ad1e8", "%": "#c98f4a" };
+  const POTCOL = ["#d0463c", "#e2574c", "#4a86d8", "#e9c046", "#9a59c2", "#3f9d55", "#5b93e6", "#d2772a"];
+  const itemCol = it => it.g === "!" ? POTCOL[it.eff.startsWith("heal") ? 0 : it.eff.startsWith("mana") ? 2 : 3 + it.id % 5] : it.art ? "#e9c046" : ITEMCOL[it.g];
+  const PETCOL = ["#b98a55", "#55506a", "#c9a227", "#8a5a3a", "#7fe0c0", "#a0855c"];
+  const VEHCOL = { fantasy: ["#8a5a3a", "#7a5230", "#3f8a6a"], scifi: ["#4fb0e0", "#7f8ea0", "#5bc0be"], wasteland: ["#b0443a", "#6f6a55", "#8a7a4a"] };
+
+  // ---------- Smooth movement ----------
+  const POS = new Map();
+  function ipos(key, e, now) {
+    let s = POS.get(key);
+    if (!s || s.map !== L) { s = { x: e.x, y: e.y, fx: e.x, fy: e.y, t: 0, map: L }; POS.set(key, s); }
+    const cur = () => { const u = still ? 1 : clamp((now - s.t) / 110, 0, 1); if (u < 1) moving = true; return { x: s.fx + (s.x - s.fx) * u, y: s.fy + (s.y - s.fy) * u }; };
+    if (s.x !== e.x || s.y !== e.y) {
+      const c = cur();
+      if (Math.max(Math.abs(e.x - c.x), Math.abs(e.y - c.y)) > 2.5) { s.fx = e.x; s.fy = e.y; s.t = 0; } else { s.fx = c.x; s.fy = c.y; s.t = now; }
+      s.x = e.x; s.y = e.y;
+    }
+    return cur();
+  }
+
+  // ---------- Minimap ----------
+  let mini = null, miniKey = "";
+  function miniMap(px) {
+    const key = L.id + "|" + G.star + "|" + G.world + "|" + G.turn + "|" + px;
+    if (mini && key === miniKey) return mini;
+    miniKey = key;
+    if (!mini) mini = document.createElement("canvas");
+    mini.width = L.w * px; mini.height = L.h * px;
+    const g = mini.getContext("2d"), P = L.out ? OUT[L.pal] : (L.pal === "s" ? INP[G.theme] : INP[L.pal]);
+    g.fillStyle = "rgba(8,8,12,.72)"; g.fillRect(0, 0, mini.width, mini.height);
+    for (let y = 0; y < L.h; y++) for (let x = 0; x < L.w; x++) {
+      const k = y * L.w + x; if (!L.seen[k]) continue;
+      const t = L.tiles[k];
+      const col = L.out ? (t === 12 ? P.water : t === 13 ? P.rock : t === 11 ? P.tree : t === 14 ? P.road : t === 16 || t === 17 ? "#d8cfa8" : t === 18 ? "#ff7a59" : t === 19 ? "#ffffff" : P.g)
+        : (t === 0 ? P.wall : t === 2 ? "#ff7a59" : t === 3 ? "#ffffff" : t === 4 ? "#b98a55" : P.floor2);
+      g.fillStyle = col; g.fillRect(x * px, y * px, px, px);
+    }
+    const mark = (o, col) => { g.fillStyle = col; g.fillRect((o.x - 1) * px, (o.y - 1) * px, px * 3, px * 3); };
+    if (L.out) { L.sites.forEach(s => mark(s, "#ff7a59")); if (L.town) mark(L.town, "#f2d76b"); mark(L.pad, "#ffffff"); }
+    return mini;
+  }
+
+  // ---------- The map ----------
+  function drawMap(now) {
+    if (!G || !L) return;
+    const dpr = window.devicePixelRatio || 1, w = canvas.clientWidth, h = canvas.clientHeight;
+    const cw = Math.round(w * dpr), chh = Math.round(h * dpr);
+    if (canvas.width !== cw || canvas.height !== chh) { canvas.width = cw; canvas.height = chh; }
+    const S = Math.round((w < 520 ? 18 : 24) * dpr), p = G.p, R = sight();
+    if (S !== view.S) cache.clear();
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.imageSmoothingEnabled = false;
+    moving = false;
+    const pp = ipos("p", p, now);
+    const cam = (c, total, port) => Math.round(total <= port ? (total - port) / 2 : clamp(c, 0, total - port));
+    const camX = cam(pp.x * S + S / 2 - cw / 2, L.w * S, cw), camY = cam(pp.y * S + S / 2 - chh / 2, L.h * S, chh);
+    view = { camX, camY, S, dpr };
+    ctx.fillStyle = "#07070b"; ctx.fillRect(0, 0, cw, chh);
+    const x0 = Math.max(0, Math.floor(camX / S)), x1 = Math.min(L.w - 1, Math.floor((camX + cw) / S)), y0 = Math.max(0, Math.floor(camY / S)), y1 = Math.min(L.h - 1, Math.floor((camY + chh) / S));
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+      const k = y * L.w + x;
+      if (!L.seen[k]) continue;
+      const t = L.tiles[k], so = t === 0 && y + 1 < L.h && L.tiles[k + L.w] !== 0 && L.seen[k + L.w] ? 1 : 0;
+      const sx = x * S - camX, sy = y * S - camY;
+      ctx.drawImage(tileImg(t, ((x * 73856093) ^ (y * 19349663)) >>> 0 & 3, so, S), sx, sy);
+      if (!VIS[k]) { ctx.fillStyle = L.out ? "rgba(10,12,22,.5)" : "rgba(6,6,12,.55)"; ctx.fillRect(sx, sy, S, S); }
+      else { const d = Math.hypot(x - pp.x, y - pp.y) / R; if (d > 0.45) { ctx.fillStyle = "rgba(6,6,12," + Math.min(0.4, (d - 0.45) * 0.6).toFixed(2) + ")"; ctx.fillRect(sx, sy, S, S); } }
+    }
+    const at = (o) => [Math.round(o.x * S - camX), Math.round(o.y * S - camY)];
+    const put = (img, o, scale, lift) => { const [sx, sy] = at(o), d = Math.round(S * (scale || 1)); ctx.drawImage(img, sx + ((S - d) >> 1), sy + S - d - Math.round((lift || 0) * S), d, d); };
+    const shadow = o => { const [sx, sy] = at(o); ctx.fillStyle = "rgba(0,0,0,.3)"; ctx.beginPath(); ctx.ellipse(sx + S / 2, sy + S * 0.93, S * 0.34, S * 0.1, 0, 0, 6.3); ctx.fill(); };
+    const ring = (o, col, wd) => { const [sx, sy] = at(o); ctx.strokeStyle = col; ctx.lineWidth = wd * dpr; ctx.beginPath(); ctx.ellipse(sx + S / 2, sy + S * 0.9, S * 0.42, S * 0.16, 0, 0, 6.3); ctx.stroke(); };
+    if (L.out && L.seen[idx(L.pad.x, L.pad.y)]) put(sprite("S", G.theme === "fantasy" ? "#b98a55" : G.theme === "scifi" ? "#b8c4d4" : "#9a8a6a", S), { x: L.pad.x, y: L.pad.y - 1 }, 1.5);
+    for (const it of L.items) {
+      const k = idx(it.x, it.y);
+      if (!(L.seen[k] === 1 || it.known)) continue;
+      const d = it.gold ? null : it.chest ? null : ITEMS[it.id];
+      ctx.globalAlpha = VIS[k] ? 1 : 0.55;
+      if (d && d.art && VIS[k]) { const [sx, sy] = at(it); ctx.fillStyle = "rgba(233,192,70,.28)"; ctx.beginPath(); ctx.arc(sx + S / 2, sy + S / 2, S * 0.48, 0, 6.3); ctx.fill(); }
+      put(it.gold ? sprite("$", "#e9c046", S) : it.chest ? sprite("C", "#9a6a35", S) : sprite(d.g, itemCol(d), S), it, 0.8);
+      ctx.globalAlpha = 1;
+    }
+    for (const n of L.npcs) if (L.seen[idx(n.x, n.y)]) {
+      shadow(n); put(sprite("P", ["#3f9d55", "#8a93a8", "#9a59c2", "#c98f4a", "#4a86d8"][n.type], S, "#e8b88a", "#3a2a1e"), n, 1);
+      const [sx, sy] = at(n); ctx.fillStyle = "#f2d76b"; const b = Math.round(S / 6); ctx.fillRect(sx + S / 2 - b / 2, sy - b * 1.2 - (frameN & 1 ? b / 3 : 0), b, b);
+    }
+    for (const m of L.mons) if (VIS[idx(m.x, m.y)]) {
+      const d = MON[m.t], o = ipos("m" + m.id, m, now), big = m.t === BOSS ? 1.35 : m.el === 2 ? 1.2 : 1, mx = monMax(m);
+      shadow(o);
+      if (m.el || m.t === BOSS) ring(o, m.el === 1 ? "#ff7a59" : "#f2d76b", 2);
+      if (m.id === G.target) ring(o, "#ff4d4d", 2.5);
+      ctx.globalAlpha = m.asleep ? 0.75 : 1;
+      put(sprite(d.shape, d.col, S), o, big);
+      ctx.globalAlpha = 1;
+      const [sx, sy] = at(o);
+      if (m.hp < mx) { ctx.fillStyle = "rgba(0,0,0,.6)"; ctx.fillRect(sx + 2 * dpr, sy + S - 3 * dpr, S - 4 * dpr, 3 * dpr); ctx.fillStyle = "#e0483c"; ctx.fillRect(sx + 2 * dpr, sy + S - 3 * dpr, (S - 4 * dpr) * clamp(m.hp / mx, 0, 1), 3 * dpr); }
+      if (m.asleep || m.stun > 0) { ctx.font = "bold " + Math.round(S * 0.42) + "px system-ui,sans-serif"; ctx.textAlign = "center"; ctx.fillStyle = m.asleep ? "#cfd6ff" : "#8fd0ff"; ctx.fillText(m.asleep ? "z" : "✱", sx + S * 0.85, sy + S * 0.3); }
+    }
+    const q = pet();
+    if (q) {
+      const o = ipos("pet", q, now), sc = [1, 0.8, 0.85, 1, 0.8, 1][q.k];
+      shadow(o); ring(o, "#7ddc8a", 1.5); put(sprite(TH.petShape[q.k], PETCOL[q.k], S), o, sc, TH.petShape[q.k] === "b" ? 0.15 : 0);
+      if (q.hp < petMax()) { const [sx, sy] = at(o); ctx.fillStyle = "rgba(0,0,0,.6)"; ctx.fillRect(sx + 2 * dpr, sy + S - 3 * dpr, S - 4 * dpr, 3 * dpr); ctx.fillStyle = "#7ddc8a"; ctx.fillRect(sx + 2 * dpr, sy + S - 3 * dpr, (S - 4 * dpr) * clamp(q.hp / petMax(), 0, 1), 3 * dpr); }
+    }
+    const r = RACES[p.race], me = sprite("P", CLS[p.cls].col, S, r.skin, r.hair);
+    if (p.riding) { put(sprite("V" + p.veh.k, VEHCOL[G.theme][p.veh.k], S), pp, 1.15); put(me, pp, 0.8 * r.size, 0.34); }
+    else { shadow(pp); put(me, pp, r.size); }
+    if (isNight()) { ctx.fillStyle = "rgba(14,22,74,.3)"; ctx.fillRect(0, 0, cw, chh); }
+    // Effects: floating numbers, shots and blasts.
+    for (let i = FX.length - 1; i >= 0; i--) {
+      const e = FX[i];
+      if (e.t0 == null) e.t0 = now + (e.k === "num" ? FX.slice(0, i).filter(o => o.k === "num" && o.x === e.x && o.y === e.y && o.t0 == null).length * 90 : 0);
+      const life = e.k === "num" ? 750 : 220, u = (now - e.t0) / life;
+      if (u >= 1 || still && u > 0.5) { FX.splice(i, 1); continue; }
+      if (u < 0) continue;
+      const sx = e.x * S - camX + S / 2, sy = e.y * S - camY + S / 2;
+      ctx.globalAlpha = 1 - u * u;
+      if (e.k === "num") {
+        ctx.font = "800 " + Math.round(S * (e.t.length > 4 ? 0.46 : 0.58)) + "px system-ui,sans-serif"; ctx.textAlign = "center";
+        ctx.lineWidth = 3 * dpr; ctx.strokeStyle = "rgba(0,0,0,.85)"; ctx.strokeText(e.t, sx, sy - S * (0.3 + u * 0.9)); ctx.fillStyle = e.c; ctx.fillText(e.t, sx, sy - S * (0.3 + u * 0.9));
+      } else if (e.k === "line") {
+        const ex = e.x2 * S - camX + S / 2, ey = e.y2 * S - camY + S / 2;
+        ctx.strokeStyle = e.c; ctx.lineWidth = Math.max(2, S / 8); ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(sx + (ex - sx) * u * 0.6, sy + (ey - sy) * u * 0.6); ctx.lineTo(ex, ey); ctx.stroke();
+      } else { ctx.strokeStyle = e.c; ctx.lineWidth = S / 5; ctx.beginPath(); ctx.arc(sx, sy, (e.r + 0.5) * S * (0.3 + 0.7 * u), 0, 6.3); ctx.stroke(); }
+      ctx.globalAlpha = 1;
+    }
+    if (showMini) {
+      const px = Math.max(1, Math.round((w < 520 ? 1 : 2) * dpr)), m = miniMap(px), mx = cw - m.width - 8 * dpr, my = 8 * dpr;
+      ctx.drawImage(m, mx, my);
+      ctx.strokeStyle = "rgba(255,255,255,.35)"; ctx.lineWidth = 1; ctx.strokeRect(mx - 0.5, my - 0.5, m.width + 1, m.height + 1);
+      ctx.fillStyle = "#ff4d4d"; for (const o of L.mons) if (VIS[idx(o.x, o.y)]) ctx.fillRect(mx + o.x * px, my + o.y * px, px, px);
+      ctx.fillStyle = "#7dff8a"; ctx.fillRect(mx + (p.x - 1) * px, my + (p.y - 1) * px, px * 3, px * 3);
+    }
+  }
+  function frame(now) {
+    drawMap(now);
+    if ((moving || FX.length) && G && !still) requestAnimationFrame(frame); else { looping = false; if (still) FX.length = 0; }
+  }
+  function kick() { if (!looping) { looping = true; requestAnimationFrame(frame); } }
+
+  // ---------- The star map ----------
+  function drawGalaxy(cv, gal, cur, sel, visited) {
+    const dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const Rr = Math.min(w / 2, h / 2 / 0.72) - 14, X = s => w / 2 + s.x * Rr, Y = s => h / 2 + s.y * Rr * 0.72;
+    g.fillStyle = "#07070d"; g.fillRect(0, 0, w, h);
+    const glow = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Rr * 0.55);
+    glow.addColorStop(0, "rgba(233,192,70,.22)"); glow.addColorStop(1, "rgba(233,192,70,0)");
+    g.fillStyle = glow; g.fillRect(0, 0, w, h);
+    // Dust along the arms, from the same seed as the stars.
+    const rng = mulberry(hashStr("dust" + gal.stars.length + gal.stars[1 % gal.stars.length].name));
+    for (let i = 0; i < 500; i++) { const s = gal.stars[Math.floor(rng() * gal.stars.length)], a = rng() * 6.3, d = rng() * 0.12; g.fillStyle = "rgba(190,200,255," + (0.05 + rng() * 0.18).toFixed(2) + ")"; g.fillRect(X({ x: s.x + Math.cos(a) * d }), Y({ y: s.y + Math.sin(a) * d }), 1, 1); }
+    g.lineWidth = 1;
+    gal.stars.forEach((s, i) => s.links.forEach(j => { if (j < i) return; const hot = cur != null && (i === cur || j === cur); g.strokeStyle = hot ? "rgba(242,215,107,.75)" : "rgba(160,170,220,.3)"; g.beginPath(); g.moveTo(X(s), Y(s)); g.lineTo(X(gal.stars[j]), Y(gal.stars[j])); g.stroke(); }));
+    gal.stars.forEach((s, i) => {
+      const col = "hsl(" + Math.round(125 - s.danger * 6.2) + ",75%,62%)", r = i === 0 ? 5 : gal.stars.length > 120 ? 2.4 : 3.2;
+      g.fillStyle = col; g.shadowColor = col; g.shadowBlur = 8; g.beginPath(); g.arc(X(s), Y(s), r, 0, 6.3); g.fill(); g.shadowBlur = 0;
+      if (i === 0) { g.strokeStyle = "#f2d76b"; g.lineWidth = 1.5; g.beginPath(); g.arc(X(s), Y(s), 8, 0, 6.3); g.stroke(); }
+      if (visited && visited[i]) { g.strokeStyle = "rgba(255,255,255,.55)"; g.lineWidth = 1; g.beginPath(); g.arc(X(s), Y(s), r + 2.5, 0, 6.3); g.stroke(); }
+      if (i === cur) { g.strokeStyle = "#7dff8a"; g.lineWidth = 2; g.beginPath(); g.arc(X(s), Y(s), r + 5, 0, 6.3); g.stroke(); }
+      if (i === sel && sel !== cur) { g.strokeStyle = "#ffffff"; g.lineWidth = 2; g.strokeRect(X(s) - r - 5, Y(s) - r - 5, r * 2 + 10, r * 2 + 10); }
+    });
+    cv._pick = (mx, my) => { let b = -1, bd = 22 * 22; gal.stars.forEach((s, i) => { const d = (X(s) - mx) ** 2 + (Y(s) - my) ** 2; if (d < bd) { bd = d; b = i; } }); return b; };
+  }
+
+  // ---------- Status and menus ----------
+  function meter(cls, v, max, text) { return '<div class="meter m-' + cls + '" role="img" aria-label="' + text + '"><i style="width:' + clamp(100 * v / max, 0, 100) + '%"></i><span>' + text + "</span></div>"; }
+  const who = p => TH.race[p.race] + " " + TH.cls[p.cls];
+  function whereText() {
+    const w = world(), s = siteOf(L.id);
+    return s ? w.sites[s.i].name + ", floor " + s.f + " of " + w.sites[s.i].floors : w.name + (isNight() ? ", night" : ", day");
+  }
+  function useLabel() {
+    const t = tileAt(G.p.x, G.p.y);
+    return t === 19 ? "Board " + TH.ship : t === 18 ? "Go in" : t === 2 ? "Go down" : t === 3 ? (siteOf(L.id).f > 1 ? "Go up" : "Go outside") : L.out ? "Use" : "Way down";
+  }
+  function drawHud() {
+    const p = G.p, s = calc(), q = p.pet;
+    const flags = Object.keys(p.status).filter(k => p.status[k] > 0).map(k => ({ poison: "Poisoned", might: "Might", iron: "Guarded", haste: "Haste", regen: "Regenerating", stealth: "Unseen" }[k]));
+    $("status").innerHTML =
+      '<div class="id"><b>' + esc(p.name) + "</b> the " + who(p) + ", level " + p.lvl + (flags.length ? ' <span class="gold">' + flags.join(", ") + "</span>" : "") + "</div>" +
+      meter("hp", p.hp, s.maxHp, "Health " + p.hp + "/" + s.maxHp) + meter("mp", p.mp, s.maxMp, TH.mana + " " + p.mp + "/" + s.maxMp) +
+      meter("xp", p.lvl >= MAXLVL ? 1 : p.xp, p.lvl >= MAXLVL ? 1 : need(p.lvl), p.lvl >= MAXLVL ? "Max level" : "XP " + p.xp + "/" + need(p.lvl)) +
+      '<div class="purse"><span class="gold">' + p.gold + " " + TH.coin + "</span></div>" +
+      '<div class="where"><span>' + esc(whereText()) + "</span><span>Danger " + L.lv + "</span>" +
+      (q ? "<span>" + TH.pets[q.k] + " " + (q.down ? "knocked out" : q.hp + "/" + petMax()) + "</span>" : "") +
+      (p.veh ? "<span>" + TH.veh[p.veh.k] + " " + p.veh.hull + "/" + vehMax(p.veh.k) + (p.riding ? ", riding" : "") + "</span>" : "") +
+      (G.bounty ? '<span class="gold">Contract: ' + esc(G.bounty.name) + (bountyDone() ? ", done" : "") + "</span>" : "") + "</div>";
+    $("log").innerHTML = G.log.slice(-4).map(l => "<div>" + esc(l) + "</div>").join("");
+    const ab = ABIL[p.cls].map((a, i) => '<button type="button" data-act="ab" data-arg="' + i + '"' + (p.lvl < a[0] ? " disabled" : "") + ' title="' + esc(tx(a[4])) + '">' + (i + 1) + " " + TH.abil[p.cls][i] + " <small>" + (p.lvl < a[0] ? "lvl " + a[0] : a[1] + " " + TH.mana.toLowerCase()) + "</small></button>").join("");
+    $("acts").innerHTML = ab +
+      (s.ranged ? '<button type="button" data-act="fire">Fire <small>F</small></button>' : "") +
+      '<button type="button" data-act="explore">' + (L.out ? "Gather" : "Explore") + ' <small>X</small></button><button type="button" data-act="rest">Rest <small>R</small></button>' +
+      '<button type="button" data-act="usetile">' + useLabel() + ' <small>Enter</small></button><button type="button" data-act="travel">Go to <small>T</small></button>' +
+      (p.veh && L.out ? '<button type="button" data-act="mount">' + (p.riding ? "Get off" : "Ride") + " <small>V</small></button>" : "") +
+      '<button type="button" data-act="galaxy">Star map <small>G</small></button><button type="button" data-act="inv">Pack <small>I</small></button>' +
+      '<button type="button" data-act="sheet">Sheet' + (p.pts ? " (" + p.pts + ")" : "") + " <small>P</small></button>";
+  }
+
+  function show(html, wide) { $("modal").innerHTML = '<div class="sheet' + (wide ? " wide" : "") + '" role="dialog" aria-modal="true">' + html + "</div>"; $("modal").hidden = false; const b = $("modal").querySelector("[data-focus]") || $("modal").querySelector("button"); if (b) b.focus({ preventScroll: true }); }
+  function closeModal() { modal = null; $("modal").hidden = true; }
+  const head = t => '<div class="head"><h2>' + t + '</h2><button type="button" data-act="close">Close</button></div>';
+  const row = (name, small, btn) => '<li><span class="nm">' + name + (small ? "<small>" + small + "</small>" : "") + "</span>" + (btn || "") + "</li>";
+  const btn = (act, arg, text, off) => '<button type="button" data-act="' + act + '" data-arg="' + arg + '"' + (off ? " disabled" : "") + ">" + text + "</button>";
+
+  function invHtml() {
+    const p = G.p;
+    const rows = p.inv.map((e, i) => {
+      const it = ITEMS[e.id];
+      return row(it.art ? '<span class="gold">' + esc(label(e)) + "</span>" : esc(label(e)), esc(describe(it, e)), (it.slot ? btn("equip", i, "Equip") : it.kind !== "gem" ? btn("use", i, "Use") : "") + btn("drop", i, "Drop"));
+    }).join("");
+    return head("Pack (" + p.inv.length + "/" + packSize() + ")") + '<p class="gold">' + p.gold + " " + TH.coin + "</p>" + (rows ? '<ul class="rows">' + rows + "</ul>" : "<p>Your pack is empty.</p>");
+  }
+  function sheetHtml() {
+    const p = G.p, s = calc();
+    const stats = STATS.map((n, i) => "<div><span>" + n + "</span><span><b>" + [s.st.str, s.st.dex, s.st.int, s.st.vit][i] + "</b> " + (p.pts ? '<button type="button" data-act="pt" data-arg="' + i + '" aria-label="Raise ' + n + '">+</button>' : "") + "</span></div>").join("");
+    const der = [["Health", p.hp + " / " + s.maxHp], [TH.mana, p.mp + " / " + s.maxMp], ["Weapon damage", s.dmin + "-" + s.dmax + (s.ranged ? " ranged" : "")], ["Power", s.sp], ["Accuracy", Math.round(s.acc)], ["Evasion", Math.round(s.eva)], ["Armour", s.ac], ["Kills", p.kills], ["Turns", G.turn], ["Seed", esc(G.seed)]]
+      .map(([a, b]) => "<div><span>" + a + "</span><b>" + b + "</b></div>").join("");
+    const eq = SLOTS.map(([k, n]) => { const e = p.eq[k]; return row("<b>" + n + ":</b> " + (e ? esc(label(e)) : '<span class="muted">nothing</span>'), e ? esc(describe(ITEMS[e.id], e)) : "", e ? btn("unequip", k, "Remove") : ""); }).join("");
+    const ab = ABIL[p.cls].map((a, i) => row("<b>" + (i + 1) + ". " + TH.abil[p.cls][i] + "</b> (" + a[1] + " " + TH.mana.toLowerCase() + (p.lvl < a[0] ? ", learned at level " + a[0] : "") + ")", tx(a[4]))).join("");
+    return head(esc(p.name) + " the " + who(p)) + "<p>Level " + p.lvl + " of " + MAXLVL + (p.lvl < MAXLVL ? ", " + p.xp + " / " + need(p.lvl) + " experience" : "") + "." + (p.pts ? ' <span class="gold">' + p.pts + " point" + (p.pts > 1 ? "s" : "") + " to spend.</span>" : "") + "</p>" +
+      '<p class="muted">' + TH.race[p.race] + ": " + RACES[p.race].perk + "</p>" +
+      '<h3>Attributes</h3><div class="grid2">' + stats + '</div><h3>Combat</h3><div class="grid2">' + der + '</div><h3>Equipment</h3><ul class="rows">' + eq + '</ul><h3>Abilities</h3><ul class="rows">' + ab + "</ul>" +
+      (p.pet ? "<h3>Companion</h3><p>" + TH.pets[p.pet.k] + ". " + PETS[p.pet.k].note + "</p>" : "") + (p.veh ? "<h3>Vehicle</h3><p>" + TH.veh[p.veh.k] + ". " + VEH[p.veh.k].note + "</p>" : "");
+  }
+  const purse = () => '<p>You have <span class="gold">' + G.p.gold + " " + TH.coin + "</span>.</p>";
+  function shopHtml(n) {
+    const p = G.p;
+    const tabs = '<div class="tabs"><button type="button" data-act="tab" data-arg="buy" class="' + (shopTab === "buy" ? "on" : "") + '">Buy</button><button type="button" data-act="tab" data-arg="sell" class="' + (shopTab === "sell" ? "on" : "") + '">Sell</button></div>';
+    let rows;
+    if (shopTab === "buy") rows = n.stock.map((e, i) => { const it = ITEMS[e.id]; return row(esc(label(e)), esc(describe(it, e)), btn("buy", i, it.val, p.gold < it.val)); }).join("") || "<li>Sold out.</li>";
+    else rows = p.inv.map((e, i) => row(esc(label(e)), esc(describe(ITEMS[e.id], e)), btn("sell", i, sellPrice(e)))).join("") || "<li>You have nothing to sell.</li>";
+    return head(esc(n.name)) + purse() + tabs + '<ul class="rows">' + rows + "</ul>";
+  }
+  function yardHtml(n) {
+    const p = G.p, care = petCare(), fix = vehFix();
+    const pets = PETS.map((d, k) => row("<b>" + TH.pets[k] + "</b>" + (p.pet && p.pet.k === k ? ' <span class="gold">yours</span>' : ""), d.note, p.pet && p.pet.k === k ? "" : btn("buypet", k, PETPRICE, p.gold < PETPRICE))).join("");
+    const vehs = VEH.map((d, k) => row("<b>" + TH.veh[k] + "</b>" + (p.veh && p.veh.k === k ? ' <span class="gold">yours</span>' : ""), d.note + " Hull " + vehMax(k) + ".", p.veh && p.veh.k === k ? "" : btn("buyveh", k, d.price, p.gold < d.price))).join("");
+    return head(esc(n.name)) + purse() +
+      "<h3>Companions</h3><p class=\"muted\">One travels with you at a time. Buying another replaces it.</p>" + (care ? "<p>" + btn("carepet", 0, "Tend your " + TH.pets[p.pet.k] + " for " + care, p.gold < care) + "</p>" : "") + '<ul class="rows">' + pets + "</ul>" +
+      "<h3>Vehicles</h3><p class=\"muted\">Ride outdoors with V. While you ride, foes get half as many turns and damage goes to the hull instead of you.</p>" + (fix > 0 ? "<p>" + btn("fixveh", 0, "Repair your " + TH.veh[p.veh.k] + " for " + fix, p.gold < fix) + "</p>" : "") + '<ul class="rows">' + vehs + "</ul>";
+  }
+  function lawHtml(n) {
+    const b = G.bounty, o = bountyOffer();
+    let body;
+    if (b && bountyDone()) body = "<p>" + esc(b.name) + " on " + esc(b.on) + " is cleared. Good work.</p><p>" + btn("claim", 0, "Collect " + b.reward + " " + TH.coin + " and a reward") + "</p>";
+    else if (b) body = "<p>You are under contract to clear " + esc(b.name) + " on " + esc(b.on) + ". Kill the alpha on its lowest floor.</p><p>" + btn("dropbounty", 0, "Give up the contract") + "</p>";
+    else if (o) body = "<p>Something has made its den in " + esc(o.name) + ". Kill the alpha on its lowest floor and I will pay " + o.reward + " " + TH.coin + " and something from the lock-up.</p><p>" + btn("takebounty", 0, "Take the contract") + "</p>";
+    else body = "<p>Every den on " + esc(world().name) + " is cleared. There is no work for you here.</p>";
+    return head(esc(n.name)) + body;
+  }
+  function travelHtml() {
+    return head("Go to") + '<ul class="rows">' + places().map((pl, i) => row(esc(pl.name), "", btn("goto", i, "Go"))).join("") + "</ul>" +
+      '<p class="muted">You stop walking when something dangerous comes into view.</p>';
+  }
+  function galaxyHtml() {
+    const s = GAL.stars[galSel], here = galSel === G.star, linked = GAL.stars[G.star].links.includes(galSel), atPad = L.out && tileAt(G.p.x, G.p.y) === 19;
+    const worlds = s.worlds.map((w, j) => {
+      const cur = here && j === G.world, cleared = w.sites.filter((_, i) => G.done[galSel + "." + j + "." + i]).length;
+      return row("<b>" + esc(w.name) + "</b>" + (cur ? ' <span class="gold">you are here</span>' : ""), TH.biome[w.biome] + ", danger " + w.danger + (w.town ? ", has " + an(TH.town) : ", wild") + ", " + cleared + " of " + w.sites.length + " dens cleared",
+        cur ? "" : btn("land", j, here ? "Fly here" : "Jump here", !atPad || !(here || linked)));
+    }).join("");
+    return head("The " + TH.galaxy) + '<canvas id="gal" class="gal" aria-label="Map of the ' + TH.galaxy + '"></canvas>' +
+      '<p class="muted">Green stars are safe, red are deadly. The ringed star at the centre is where the Hollow King waits. Your ' + TH.ship + " can jump along the bright lines. Select a star to look at it.</p>" +
+      "<h3>" + esc(s.name) + (galSel === 0 ? ", the core" : "") + "</h3><p>Danger " + s.danger + ". " + (here ? "Your " + TH.ship + " is here." : linked ? "One jump away." : "Not linked to the star you are at, so you cannot jump there yet.") + (atPad ? "" : " Stand on the landing pad to travel.") + "</p>" +
+      '<ul class="rows">' + worlds + "</ul>";
+  }
+  function pickGrid(act, items, cur) { return '<div class="classes">' + items.map(([b, d], i) => '<button type="button" data-act="' + act + '" data-arg="' + i + '" class="' + (i === cur ? "on" : "") + '" aria-pressed="' + (i === cur) + '"><b>' + b + "</b>" + d + "</button>").join("") + "</div>"; }
+  function titleHtml() {
+    const saved = loadSave(), T = THEMES[setup.theme], keys = Object.keys(THEMES);
+    const cont = saved ? '<p><button type="button" class="go" data-act="continue" data-focus>Continue as ' + esc(saved.p.name) + ", level " + saved.p.lvl + " " + THEMES[saved.theme].race[saved.p.race] + " " + THEMES[saved.theme].cls[saved.p.cls] + "</button></p>" : "";
+    return "<h2>Start a new journey</h2>" + cont +
+      "<h3>Setting</h3>" + '<div class="classes">' + keys.map(k => '<button type="button" data-act="theme" data-arg="' + k + '" class="' + (k === setup.theme ? "on" : "") + '" aria-pressed="' + (k === setup.theme) + '"><b>' + THEMES[k].name + "</b>" + THEMES[k].blurb + "</button>").join("") + "</div>" +
+      "<h3>Universe</h3>" + '<div class="seedrow"><label>Seed <input type="text" id="seed" maxlength="40" value="' + esc(setup.seed) + '"></label><label>Size <select id="size">' + [["small", "Cluster, 36 stars"], ["medium", "Spiral, 90 stars"], ["large", "Galaxy, 200 stars"]].map(([v, t]) => '<option value="' + v + '"' + (v === setup.size ? " selected" : "") + ">" + t + "</option>").join("") + '</select></label><button type="button" data-act="reseed">New seed</button></div>' +
+      '<canvas id="gal" class="gal small" aria-label="Preview of the ' + T.galaxy + ' this seed grows"></canvas><p class="muted" id="galnote"></p>' +
+      '<h3>Who you are</h3><p><label>Name <input type="text" id="nm" maxlength="20" placeholder="Nameless" value="' + esc(setup.name) + '"></label></p>' +
+      pickGrid("race", RACES.map((r, i) => [T.race[i], r.perk]), setup.race) +
+      "<h3>Calling</h3>" + pickGrid("cls", CLS.map((c, i) => [T.cls[i], c.desc.replace("{U}", T.U) + " Learns " + T.abil[i].join(", ") + "."]), setup.cls) +
+      "<h3>Companion</h3>" + pickGrid("pet", [["None", "Travel alone."]].concat(PETS.map((d, i) => [T.pets[i], d.note])), setup.pet + 1) +
+      '<button type="button" class="go" data-act="start">Begin</button>' +
+      '<p class="muted" style="margin-top:10px">The same seed, size and setting always grow the same stars, worlds and maps, so you can share a seed. Death is permanent. The game saves whenever you change maps.</p>';
+  }
+  function previewGalaxy() {
+    const cv = $("gal"); if (!cv) return;
+    const old = TH; TH = THEMES[setup.theme];
+    const gal = genGalaxy(setup.seed || "0", setup.size);
+    TH = old;
+    drawGalaxy(cv, gal, gal.start, -1, null);
+    const worlds = gal.stars.reduce((n, s) => n + s.worlds.length, 0);
+    $("galnote").textContent = gal.stars.length + " stars, " + worlds + " worlds, " + gal.hmax + " jumps from your starting star (ringed green) to " + gal.stars[0].name + " at the centre.";
+  }
+  function endHtml() {
+    const p = G.p, won = G.over === "won";
+    return "<h2>" + (won ? "The crown is empty" : "You have died") + "</h2><p>" + esc(p.name) + " the level " + p.lvl + " " + who(p) + (won ? " killed the Hollow King" : " was killed by " + (G.cause === "poison" ? "poison" : esc(/^The /.test(G.cause) ? "the " + G.cause.slice(4) : "a " + G.cause)) + " on " + esc(world().name)) + " after " + G.turn + " turns, with " + p.kills + " kills and " + p.gold + " " + TH.coin + ". Seed: " + esc(G.seed) + ".</p>" +
+      '<button type="button" class="go" data-act="title">Play again</button>';
+  }
+
+  function render() {
+    if (!G) { $("game").hidden = true; modal = "title"; applySetting(setup.theme); show(titleHtml(), true); previewGalaxy(); return; }
+    $("game").hidden = false;
+    drawHud(); kick();
+    if (G.over) { modal = "end"; show(endHtml()); }
+    else if (modal === "inv") show(invHtml());
+    else if (modal === "sheet") show(sheetHtml());
+    else if (modal === "travel") show(travelHtml());
+    else if (modal === "galaxy") { show(galaxyHtml(), true); drawGalaxy($("gal"), GAL, G.star, galSel, G.visited); }
+    else if (modal && modal.npc) { const n = modal.npc; show(n.type < 3 ? shopHtml(n) : n.type === 3 ? yardHtml(n) : lawHtml(n)); }
+    else $("modal").hidden = true;
+  }
+  openNpc = n => { modal = { npc: n }; shopTab = "buy"; };
+  function keepInputs() { if ($("nm")) setup.name = $("nm").value; if ($("seed")) setup.seed = $("seed").value.trim(); if ($("size")) setup.size = $("size").value; }
+
+  function act(a, arg) {
+    if (modal === "title") {
+      keepInputs();
+      if (a === "theme") setup.theme = arg;
+      else if (a === "race") setup.race = +arg;
+      else if (a === "cls") setup.cls = +arg;
+      else if (a === "pet") setup.pet = +arg - 1;
+      else if (a === "reseed") setup.seed = newSeed();
+      else if (a === "start") { modal = null; POS.clear(); FX.length = 0; newGame({ name: setup.name.trim(), theme: setup.theme, seed: setup.seed || newSeed(), size: setup.size, race: setup.race, cls: setup.cls, pet: setup.pet }); }
+      else if (a === "continue") { const d = loadSave(); if (d) { modal = null; POS.clear(); resume(d); applySetting(G.theme); } }
+      const top = $("modal").scrollTop;
+      render();
+      $("modal").scrollTop = top;
+      return;
+    }
+    if (a === "title") { G = null; L = null; modal = null; setup.seed = newSeed(); render(); return; }
+    if (!G) return;
+    if (a === "close") closeModal();
+    else if (a === "inv" || a === "sheet" || a === "travel") modal = modal === a ? null : a;
+    else if (a === "galaxy") { if (modal === "galaxy") modal = null; else { modal = "galaxy"; galSel = G.star; } }
+    else if (a === "tab") shopTab = arg;
+    else if (a === "buy") buy(modal.npc, +arg);
+    else if (a === "sell") sell(+arg);
+    else if (a === "buypet") buyPet(+arg);
+    else if (a === "carepet") carePet();
+    else if (a === "buyveh") buyVeh(+arg);
+    else if (a === "fixveh") fixVeh();
+    else if (a === "takebounty") takeBounty();
+    else if (a === "dropbounty") G.bounty = null;
+    else if (a === "claim") claimBounty();
+    else if (a === "pt") spendPoint(+arg);
+    else if (a === "use") { modal = null; useItem(+arg); }
+    else if (a === "equip") equip(+arg);
+    else if (a === "unequip") unequip(arg);
+    else if (a === "drop") drop(+arg);
+    else if (a === "goto") { const pl = places()[+arg]; modal = null; if (pl) travelTo(pl.x, pl.y); }
+    else if (a === "land") { modal = null; POS.clear(); land(galSel, +arg); }
+    else if (a === "ab") useAbility(+arg);
+    else if (a === "fire") fire();
+    else if (a === "explore") explore();
+    else if (a === "rest") rest();
+    else if (a === "mount") mount();
+    else if (a === "usetile") { if (useTile() === "galaxy") { modal = "galaxy"; galSel = G.star; } }
+    render();
+  }
+
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-act]");
+    if (b && !b.disabled) { act(b.dataset.act, b.dataset.arg); return; }
+    const d = e.target.closest("[data-dir]");
+    if (d && G && !G.over && !modal) { const [dx, dy] = d.dataset.dir.split(",").map(Number); move(dx, dy); render(); return; }
+    if (e.target.id === "gal" && e.target._pick) {
+      const r = e.target.getBoundingClientRect(), i = e.target._pick(e.clientX - r.left, e.clientY - r.top);
+      if (i >= 0 && modal === "galaxy") { galSel = i; render(); }
+    }
+  });
+  document.addEventListener("input", e => {
+    if (modal !== "title") return;
+    keepInputs();
+    if (e.target.id === "seed" || e.target.id === "size") previewGalaxy();
+  });
+  canvas.addEventListener("click", e => {
+    if (!G || G.over || modal) return;
+    const r = canvas.getBoundingClientRect(), d = view.dpr || 1;
+    const x = Math.floor(((e.clientX - r.left) * d + view.camX) / view.S), y = Math.floor(((e.clientY - r.top) * d + view.camY) / view.S);
+    if (!inb(x, y)) return;
+    const m = monAt(x, y);
+    if (m && VIS[idx(x, y)] && cheb(m, G.p) > 1) { G.target = m.id; msg("You mark " + the(m) + "."); }
+    else if (x === G.p.x && y === G.p.y) { if (useTile() === "galaxy") { modal = "galaxy"; galSel = G.star; } }
+    else if (cheb({ x, y }, G.p) > 1 && npcAt(x, y)) travel((a, b) => Math.max(Math.abs(a - x), Math.abs(b - y)) === 1);
+    else if (cheb({ x, y }, G.p) > 1 && L.seen[idx(x, y)] && passable(x, y) && !threats().length) travelTo(x, y);
+    else move(Math.sign(x - G.p.x), Math.sign(y - G.p.y));
+    render();
+  });
+  const KEYS = { ArrowUp: [0,-1], ArrowDown: [0,1], ArrowLeft: [-1,0], ArrowRight: [1,0], w: [0,-1], s: [0,1], a: [-1,0], d: [1,0], q: [-1,-1], e: [1,-1], z: [-1,1], c: [1,1], ".": [0,0] };
+  window.addEventListener("keydown", e => {
+    if (/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName) || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === "Escape" && modal && modal !== "title" && modal !== "end") { closeModal(); render(); return; }
+    if (!G || G.over) return;
+    const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    const menu = { i: "inv", p: "sheet", t: "travel", g: "galaxy" }[k];
+    if (menu) { act(menu); e.preventDefault(); return; }
+    if (modal) return;
+    if (KEYS[k]) { move(KEYS[k][0], KEYS[k][1]); e.preventDefault(); }
+    else if (k >= "1" && k <= "4") useAbility(+k - 1);
+    else if (k === "f") fire();
+    else if (k === "x") explore();
+    else if (k === "r") rest();
+    else if (k === "v") mount();
+    else if (k === "m") showMini = !showMini;
+    else if (k === "Enter" || k === ">" || k === "<") { e.preventDefault(); act("usetile"); return; }
+    else return;
+    render();
+  });
+  window.addEventListener("resize", () => { if (G) kick(); if ($("gal")) { if (modal === "title") previewGalaxy(); else if (modal === "galaxy") drawGalaxy($("gal"), GAL, G.star, galSel, G.visited); } });
+  window.addEventListener("pagehide", save);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) save(); });
+  if (!still) setInterval(() => { frameN++; if (G && !G.over && $("modal").hidden) kick(); }, 500);
+  if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", readCss);
+  render();
+}
+</script>
+</body>
+</html>
